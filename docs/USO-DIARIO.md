@@ -14,7 +14,7 @@ traslado a otro ordenador están en [INSTALACION.md](../INSTALACION.md).
 Desde la carpeta del proyecto:
 
 ```powershell
-.\scripts\start-taskflow.ps1
+.\scripts\start-vplan.ps1
 ```
 
 El script:
@@ -24,8 +24,8 @@ El script:
 3. Comprueba que el puerto 8080 está libre o que ya lo usa VPlan.
 4. Arranca Spring Boot en segundo plano.
 5. Espera a que `/api/health` esté `UP` y abre el navegador.
-6. Guarda el PID en `logs/taskflow.pid` y la salida en
-   `logs/taskflow-AAAA-MM-DD_HHmmss.log`.
+6. Guarda el PID en `logs/vplan.pid` y la salida en
+   `logs/vplan-AAAA-MM-DD_HHmmss.log`.
 
 Si VPlan ya está en marcha, no arranca una segunda copia: abre el navegador. Si
 el puerto lo ocupa otro programa, se niega a continuar y muestra el PID.
@@ -33,7 +33,7 @@ el puerto lo ocupa otro programa, se niega a continuar y muestra el PID.
 La primera vez Maven descarga dependencias. Si tarda más de lo normal:
 
 ```powershell
-.\scripts\start-taskflow.ps1 -TimeoutSeconds 180
+.\scripts\start-vplan.ps1 -TimeoutSeconds 180
 ```
 
 Opciones:
@@ -69,7 +69,7 @@ Chrome normal. Para reemplazar el acceso directo:
 ## Parar
 
 ```powershell
-.\scripts\stop-taskflow.ps1
+.\scripts\stop-vplan.ps1
 ```
 
 El script comprueba que el proceso del puerto 8080 es VPlan, lo detiene, para
@@ -92,7 +92,7 @@ Respuesta esperada:
 ```json
 {
   "status": "UP",
-  "application": "taskflow",
+  "application": "vplan",
   "database": "UP",
   "timestamp": "2026-11-17T09:50:00Z"
 }
@@ -107,9 +107,9 @@ Si `database` es `DOWN`, MySQL no responde o la contraseña no es correcta.
 | Elemento | Ruta |
 |---|---|
 | Aplicación | `http://localhost:8080` |
-| Logs de arranque | `logs\taskflow-AAAA-MM-DD_HHmmss.log` |
-| PID del último arranque | `logs\taskflow.pid` |
-| Copias de seguridad | `backups\taskflow-AAAA-MM-DD_HHmmss.sql` |
+| Logs de arranque | `logs\vplan-AAAA-MM-DD_HHmmss.log` |
+| PID del último arranque | `logs\vplan.pid` |
+| Copias de seguridad | `backups\vplan-AAAA-MM-DD_HHmmss.sql` |
 | Contraseña local | `.env.local` (ignorado por Git; no compartir) |
 | Configuración | `src\main\resources\application.yml` (sin contraseñas) |
 
@@ -125,7 +125,7 @@ Con VPlan parado o en marcha:
 .\scripts\backup-db.ps1
 ```
 
-La copia incluye **toda** la base `taskflow`: la tabla `tareas` y el historial de
+La copia incluye **toda** la base `vplan`: la tabla `tareas` y el historial de
 Flyway. Guarda el archivo en un lugar privado (disco externo o copia cifrada). No
 lo subas a GitHub.
 
@@ -134,15 +134,15 @@ lo subas a GitHub.
 Con VPlan parado:
 
 ```powershell
-.\scripts\stop-taskflow.ps1
-.\scripts\restore-db.ps1 -BackupFile ".\backups\taskflow-2026-11-17_132926.sql"
+.\scripts\stop-vplan.ps1
+.\scripts\restore-db.ps1 -BackupFile ".\backups\vplan-2026-11-17_132926.sql"
 ```
 
 El script valida el archivo, se niega a continuar si el puerto 8080 está ocupado y
 pide escribir `RESTAURAR`.
 
 Para probar una restauración sin tocar tus datos hace falta una base
-independiente (`taskflow_restore_test`) y permisos que `taskflow_app` no tiene por
+independiente (`vplan_restore_test`) y permisos que `vplan_app` no tiene por
 defecto. El SQL exacto está en
 [INSTALACION.md](../INSTALACION.md#probar-una-restauración-sin-tocar-tus-datos).
 
@@ -152,7 +152,7 @@ defecto. El SQL exacto está en
 
 | Síntoma | Solución |
 |---|---|
-| `Falta TASKFLOW_DB_PASSWORD` | Ejecuta `.\scripts\set-db-password.ps1` |
+| `Falta VPLAN_DB_PASSWORD` | Ejecuta `.\scripts\set-db-password.ps1` |
 | `MySQL no responde` | `Get-Service MySQL80` y `Start-Service MySQL80` |
 | El puerto 8080 está ocupado | `Get-NetTCPConnection -LocalPort 8080`; no fuerces procesos ajenos |
 | VPlan ya está en marcha | Es normal; abre `http://localhost:8080` |
@@ -184,9 +184,9 @@ Resumen:
 1. Copia el proyecto sin `target/`, `backups/`, `logs/` ni `.env.local`.
 2. Copia el archivo `.sql` de la copia de seguridad por un medio privado.
 3. Instala JDK 21+ y MySQL 8.0+.
-4. Crea la base `taskflow` y el usuario `taskflow_app` con una contraseña nueva.
+4. Crea la base `vplan` y el usuario `vplan_app` con una contraseña nueva.
 5. Ejecuta `.\scripts\set-db-password.ps1`.
 6. Restaura la copia con `.\scripts\restore-db.ps1`.
-7. Arranca con `.\scripts\start-taskflow.ps1`.
+7. Arranca con `.\scripts\start-vplan.ps1`.
 
 Lista completa y comprobaciones: [INSTALACION.md](../INSTALACION.md#8-trasladar-vplan-a-otro-ordenador).

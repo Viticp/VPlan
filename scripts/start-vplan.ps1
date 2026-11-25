@@ -1,10 +1,10 @@
 # VPlan - Arranque de uso diario.
 #
 # Uso:
-#     .\scripts\start-taskflow.ps1
-#     .\scripts\start-taskflow.ps1 -NoBrowser
-#     .\scripts\start-taskflow.ps1 -TimeoutSeconds 120
-#     .\scripts\start-taskflow.ps1 -Foreground
+#     .\scripts\start-vplan.ps1
+#     .\scripts\start-vplan.ps1 -NoBrowser
+#     .\scripts\start-vplan.ps1 -TimeoutSeconds 120
+#     .\scripts\start-vplan.ps1 -Foreground
 #
 # Que hace:
 #   1. Carga el entorno de la sesion con set-dev-env.ps1 (JDK 21+ y .env.local).
@@ -12,7 +12,7 @@
 #   3. Comprueba que el puerto 8080 esta libre o que ya lo usa VPlan.
 #   4. Arranca mvnw spring-boot:run en segundo plano, con la salida en logs/.
 #   5. Espera a que /api/health responda UP y abre el navegador.
-#   6. Guarda los PID en logs/taskflow.pid para que stop-taskflow.ps1 los use.
+#   6. Guarda los PID en logs/vplan.pid para que stop-vplan.ps1 los use.
 #
 # La contrasena nunca se imprime: set-dev-env.ps1 solo carga la variable.
 #
@@ -33,16 +33,16 @@ $ErrorActionPreference = "Stop"
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $mvnwPath = Join-Path $projectRoot "mvnw.cmd"
 $logDirectory = Join-Path $projectRoot "logs"
-$pidFile = Join-Path $logDirectory "taskflow.pid"
+$pidFile = Join-Path $logDirectory "vplan.pid"
 $logPath = ""
 
-function Write-TaskFlowError {
+function Write-VPlanError {
     param([string]$Message)
     Write-Host ""
     Write-Host "ERROR: $Message" -ForegroundColor Red
 }
 
-function Wait-TaskFlowExit {
+function Wait-VPlanExit {
     if (-not $NoPause -and $Host.Name -eq "ConsoleHost") {
         try {
             Read-Host "Pulsa Enter para cerrar" | Out-Null
@@ -52,7 +52,7 @@ function Wait-TaskFlowExit {
     }
 }
 
-function Get-TaskFlowHealth {
+function Get-VPlanHealth {
     try {
         return Invoke-RestMethod -Uri "http://127.0.0.1:8080/api/health" `
             -TimeoutSec 3 -ErrorAction Stop
@@ -61,7 +61,7 @@ function Get-TaskFlowHealth {
     }
 }
 
-function Test-TaskFlowTcpPort {
+function Test-VPlanTcpPort {
     param(
         [string]$HostName,
         [int]$Port,
@@ -80,12 +80,12 @@ function Test-TaskFlowTcpPort {
     }
 }
 
-function Get-TaskFlowListener {
+function Get-VPlanListener {
     return Get-NetTCPConnection -State Listen -LocalPort 8080 `
         -ErrorAction SilentlyContinue | Select-Object -First 1
 }
 
-function Get-TaskFlowProcessInfo {
+function Get-VPlanProcessInfo {
     param([int]$ProcessId)
 
     if (-not $ProcessId) { return $null }
@@ -103,7 +103,7 @@ function Get-TaskFlowProcessInfo {
     }
 }
 
-function Test-TaskFlowProcess {
+function Test-VPlanProcess {
     param($Info)
 
     if (-not $Info) { return $false }
@@ -112,10 +112,10 @@ function Test-TaskFlowProcess {
     $commandLine = [string]$Info.CommandLine
 
     if ($name -notmatch "^(java|javaw)$") { return $false }
-    return $commandLine -match "(?i)(taskflow|com\.taskflow)"
+    return $commandLine -match "(?i)(vplan|com\.vplan)"
 }
 
-function Show-TaskFlowLogTail {
+function Show-VPlanLogTail {
     if (-not $logPath -or -not (Test-Path -LiteralPath $logPath)) { return }
 
     Write-Host ""
@@ -124,7 +124,7 @@ function Show-TaskFlowLogTail {
         ForEach-Object { Write-Host "  $_" }
 }
 
-function Open-TaskFlowBrowser {
+function Open-VPlanBrowser {
     if ($NoBrowser) { return }
 
     # Preferir Chrome, que es el navegador indicado para VPlan. Si no esta
@@ -166,15 +166,15 @@ try {
     Write-Host "  Proyecto: $projectRoot"
 
     # set-dev-env.ps1 solo cambia esta sesion. El proceso hijo hereda JAVA_HOME,
-    # PATH y TASKFLOW_DB_PASSWORD. La salida se silencia para no repetir el banner.
+    # PATH y VPLAN_DB_PASSWORD. La salida se silencia para no repetir el banner.
     $envScript = Join-Path $PSScriptRoot "set-dev-env.ps1"
     if (-not (Test-Path -LiteralPath $envScript)) {
         throw "No se encuentra scripts\set-dev-env.ps1."
     }
     . $envScript *> $null
 
-    if (-not $env:TASKFLOW_DB_PASSWORD) {
-        throw "Falta TASKFLOW_DB_PASSWORD. Ejecuta .\scripts\set-db-password.ps1 y vuelve a intentarlo."
+    if (-not $env:VPLAN_DB_PASSWORD) {
+        throw "Falta VPLAN_DB_PASSWORD. Ejecuta .\scripts\set-db-password.ps1 y vuelve a intentarlo."
     }
 
     $javac = Get-Command "javac.exe" -ErrorAction SilentlyContinue
@@ -191,21 +191,21 @@ try {
     }
     Write-Host "  Java    : $javacVersion"
 
-    if (-not (Test-TaskFlowTcpPort -HostName "127.0.0.1" -Port 3306)) {
+    if (-not (Test-VPlanTcpPort -HostName "127.0.0.1" -Port 3306)) {
         throw "MySQL no responde en 127.0.0.1:3306. Comprueba el servicio: Get-Service MySQL80"
     }
     Write-Host "  MySQL   : 127.0.0.1:3306 responde"
 
-    $listener = Get-TaskFlowListener
+    $listener = Get-VPlanListener
     if ($listener) {
-        $existing = Get-TaskFlowProcessInfo -ProcessId ([int]$listener.OwningProcess)
-        if (Test-TaskFlowProcess -Info $existing) {
+        $existing = Get-VPlanProcessInfo -ProcessId ([int]$listener.OwningProcess)
+        if (Test-VPlanProcess -Info $existing) {
             Write-Host "  VPlan ya esta en marcha (PID $($existing.Id))." -ForegroundColor Yellow
 
             $deadlineExisting = (Get-Date).AddSeconds(15)
             $healthExisting = $null
             while ((Get-Date) -lt $deadlineExisting) {
-                $healthExisting = Get-TaskFlowHealth
+                $healthExisting = Get-VPlanHealth
                 if ($healthExisting -and $healthExisting.status -eq "UP" -and $healthExisting.database -eq "UP") {
                     break
                 }
@@ -216,11 +216,11 @@ try {
                 if (-not $NoBrowser) {
                     Write-Host "  Abriendo http://localhost:8080" -ForegroundColor Green
                 }
-                Open-TaskFlowBrowser
+                Open-VPlanBrowser
                 exit 0
             }
 
-            throw "VPlan esta en marcha, pero /api/health no responde UP. Revisa el proceso o usa stop-taskflow.ps1."
+            throw "VPlan esta en marcha, pero /api/health no responde UP. Revisa el proceso o usa stop-vplan.ps1."
         }
 
         $name = if ($existing) { $existing.Name } else { "desconocido" }
@@ -240,8 +240,8 @@ try {
     }
 
     $stamp = Get-Date -Format "yyyy-MM-dd_HHmmss"
-    $logPath = Join-Path $logDirectory "taskflow-$stamp.log"
-    $wrapperPath = Join-Path $logDirectory "taskflow-launch.cmd"
+    $logPath = Join-Path $logDirectory "vplan-$stamp.log"
+    $wrapperPath = Join-Path $logDirectory "vplan-launch.cmd"
 
     # Un wrapper .cmd evita problemas de comillas de Start-Process con rutas que
     # contienen espacios. La salida completa de Maven y de Spring queda en el log.
@@ -262,7 +262,7 @@ call "$mvnwPath" spring-boot:run > "$logPath" 2>&1
     while ((Get-Date) -lt $deadline) {
         if ($launcher.HasExited) { break }
 
-        $health = Get-TaskFlowHealth
+        $health = Get-VPlanHealth
         if ($health -and $health.status -eq "UP" -and $health.database -eq "UP") {
             break
         }
@@ -270,11 +270,11 @@ call "$mvnwPath" spring-boot:run > "$logPath" 2>&1
     }
 
     if (-not $health -or $health.status -ne "UP" -or $health.database -ne "UP") {
-        Show-TaskFlowLogTail
+        Show-VPlanLogTail
         throw "VPlan no ha respondido UP en $TimeoutSeconds segundos. Revisa el log: $logPath"
     }
 
-    $listener = Get-TaskFlowListener
+    $listener = Get-VPlanListener
     if ($listener) {
         $appPid = [int]$listener.OwningProcess
     }
@@ -299,25 +299,25 @@ call "$mvnwPath" spring-boot:run > "$logPath" 2>&1
     Write-Host "  URL    : http://localhost:8080"
     Write-Host "  PID    : $appPid"
     Write-Host "  Log    : $logPath"
-    Write-Host "  Parar  : .\scripts\stop-taskflow.ps1"
+    Write-Host "  Parar  : .\scripts\stop-vplan.ps1"
     Write-Host ""
     Write-Host "  Health :"
     $health | ConvertTo-Json -Compress | ForEach-Object { Write-Host "    $_" }
 
-    Open-TaskFlowBrowser
+    Open-VPlanBrowser
     exit 0
 } catch {
-    Write-TaskFlowError $_.Exception.Message
-    Show-TaskFlowLogTail
+    Write-VPlanError $_.Exception.Message
+    Show-VPlanLogTail
 
     if ($appPid -gt 0) {
         try { Stop-Process -Id $appPid -Force -ErrorAction SilentlyContinue } catch { }
     }
 
-    $listener = Get-TaskFlowListener
+    $listener = Get-VPlanListener
     if ($listener) {
-        $remaining = Get-TaskFlowProcessInfo -ProcessId ([int]$listener.OwningProcess)
-        if (Test-TaskFlowProcess -Info $remaining) {
+        $remaining = Get-VPlanProcessInfo -ProcessId ([int]$listener.OwningProcess)
+        if (Test-VPlanProcess -Info $remaining) {
             try { Stop-Process -Id $remaining.Id -Force -ErrorAction SilentlyContinue } catch { }
         }
     }
@@ -332,6 +332,6 @@ call "$mvnwPath" spring-boot:run > "$logPath" 2>&1
         Remove-Item -LiteralPath $pidFile -Force -ErrorAction SilentlyContinue
     }
 
-    Wait-TaskFlowExit
+    Wait-VPlanExit
     exit 1
 }

@@ -111,7 +111,7 @@ try (Connection conexion = DriverManager.getConnection(url, usuario, contrasena)
 
 Buenas prácticas aplicadas:
 
-- La contraseña se lee de `TASKFLOW_DB_PASSWORD`; **nunca** se imprime.
+- La contraseña se lee de `VPLAN_DB_PASSWORD`; **nunca** se imprime.
 - Se consultan `tareas` y `flyway_schema_history`.
 - Se comprueba `success=true` en `V1` y `V2`.
 - No se ejecuta ningún `INSERT`, `UPDATE`, `DELETE` ni `ALTER` desde este programa.

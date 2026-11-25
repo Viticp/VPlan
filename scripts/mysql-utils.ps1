@@ -1,7 +1,7 @@
 # Funciones compartidas por los scripts de copia de seguridad y restauracion.
 #
 # Este archivo NO contiene secretos. La contrasena se lee de .env.local o de la
-# variable de entorno TASKFLOW_DB_PASSWORD, y nunca se imprime por pantalla.
+# variable de entorno VPLAN_DB_PASSWORD, y nunca se imprime por pantalla.
 
 # Lee un archivo .env y devuelve un diccionario nombre -> valor.
 # Usa UTF-8 explicito: una contrasena puede contener caracteres no ASCII.
@@ -42,7 +42,7 @@ function Read-DotEnvFile {
 }
 
 # Prioriza la variable de la sesion actual y, si no existe, .env.local.
-function Resolve-TaskFlowSetting {
+function Resolve-VPlanSetting {
     param(
         [Parameter(Mandatory = $true)]
         [string]$Name,

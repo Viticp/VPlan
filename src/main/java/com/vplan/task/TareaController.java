@@ -1,7 +1,7 @@
-package com.taskflow.task;
+package com.vplan.task;
 
-import com.taskflow.task.dto.TareaRequest;
-import com.taskflow.task.dto.TareaResponse;
+import com.vplan.task.dto.TareaRequest;
+import com.vplan.task.dto.TareaResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

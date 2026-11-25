@@ -1,11 +1,11 @@
 # VPlan - Parada de uso diario.
 #
 # Uso:
-#     .\scripts\stop-taskflow.ps1
-#     .\scripts\stop-taskflow.ps1 -Force
+#     .\scripts\stop-vplan.ps1
+#     .\scripts\stop-vplan.ps1 -Force
 #
 # Que hace:
-#   1. Busca el proceso que escucha en el puerto 8080 y lee logs/taskflow.pid.
+#   1. Busca el proceso que escucha en el puerto 8080 y lee logs/vplan.pid.
 #   2. Comprueba que el proceso es realmente VPlan.
 #   3. Intenta un cierre ordenado y, si no termina, fuerza el proceso de VPlan.
 #   4. Detiene tambien el lanzador de Maven para no dejar procesos abiertos.
@@ -29,15 +29,15 @@ param(
 $ErrorActionPreference = "Stop"
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
-$pidFile = Join-Path (Join-Path $projectRoot "logs") "taskflow.pid"
+$pidFile = Join-Path (Join-Path $projectRoot "logs") "vplan.pid"
 
-function Write-TaskFlowError {
+function Write-VPlanError {
     param([string]$Message)
     Write-Host ""
     Write-Host "ERROR: $Message" -ForegroundColor Red
 }
 
-function Wait-TaskFlowExit {
+function Wait-VPlanExit {
     if (-not $NoPause -and $Host.Name -eq "ConsoleHost") {
         try {
             Read-Host "Pulsa Enter para cerrar" | Out-Null
@@ -47,12 +47,12 @@ function Wait-TaskFlowExit {
     }
 }
 
-function Get-TaskFlowListener {
+function Get-VPlanListener {
     return Get-NetTCPConnection -State Listen -LocalPort 8080 `
         -ErrorAction SilentlyContinue | Select-Object -First 1
 }
 
-function Get-TaskFlowProcessInfo {
+function Get-VPlanProcessInfo {
     param([int]$ProcessId)
 
     if (-not $ProcessId) { return $null }
@@ -70,7 +70,7 @@ function Get-TaskFlowProcessInfo {
     }
 }
 
-function Test-TaskFlowProcess {
+function Test-VPlanProcess {
     param($Info)
 
     if (-not $Info) { return $false }
@@ -79,10 +79,10 @@ function Test-TaskFlowProcess {
     $commandLine = [string]$Info.CommandLine
 
     if ($name -notmatch "^(java|javaw)$") { return $false }
-    return $commandLine -match "(?i)(taskflow|com\.taskflow)"
+    return $commandLine -match "(?i)(vplan|com\.vplan)"
 }
 
-function Read-TaskFlowPidFile {
+function Read-VPlanPidFile {
     if (-not (Test-Path -LiteralPath $pidFile)) { return $null }
 
     $values = @{}
@@ -108,7 +108,7 @@ function Read-TaskFlowPidFile {
     }
 }
 
-function Stop-TaskFlowProcessTree {
+function Stop-VPlanProcessTree {
     param([int]$ProcessId)
 
     if (-not $ProcessId) { return }
@@ -139,13 +139,13 @@ try {
     Write-Host ""
     Write-Host "VPlan - parada" -ForegroundColor Cyan
 
-    $pidInfo = Read-TaskFlowPidFile
+    $pidInfo = Read-VPlanPidFile
     if ($pidInfo) {
         $appPid = [int]$pidInfo.AppPid
         $launcherPid = [int]$pidInfo.LauncherPid
     }
 
-    $listener = Get-TaskFlowListener
+    $listener = Get-VPlanListener
     if ($listener) {
         $appPid = [int]$listener.OwningProcess
     }
@@ -154,7 +154,7 @@ try {
         # La aplicacion no esta escuchando. Puede quedar el lanzador de Maven.
         if ($launcherPid -and (Get-Process -Id $launcherPid -ErrorAction SilentlyContinue)) {
             Write-Host "  Deteniendo restos del lanzador de Maven (PID $launcherPid)..."
-            Stop-TaskFlowProcessTree -ProcessId $launcherPid
+            Stop-VPlanProcessTree -ProcessId $launcherPid
         }
 
         if (Test-Path -LiteralPath $pidFile) {
@@ -165,13 +165,13 @@ try {
         exit 0
     }
 
-    $details = Get-TaskFlowProcessInfo -ProcessId $appPid
+    $details = Get-VPlanProcessInfo -ProcessId $appPid
     if (-not $details) {
         throw "El PID $appPid ya no existe."
     }
 
-    $isTaskFlow = Test-TaskFlowProcess -Info $details
-    if (-not $isTaskFlow) {
+    $isVPlan = Test-VPlanProcess -Info $details
+    if (-not $isVPlan) {
         $description = "$($details.Name) (PID $appPid)"
         if (-not $Force) {
             throw "El puerto 8080 lo ocupa $description, que no parece VPlan. No se ha detenido nada. Si estas seguro, repite con -Force."
@@ -181,17 +181,17 @@ try {
     }
 
     Write-Host "  Deteniendo VPlan (PID $appPid, $($details.Name))..."
-    Stop-TaskFlowProcessTree -ProcessId $appPid
+    Stop-VPlanProcessTree -ProcessId $appPid
 
     $deadline = (Get-Date).AddSeconds([Math]::Max(5, $TimeoutSeconds))
     while ((Get-Date) -lt $deadline) {
-        if (-not (Get-TaskFlowListener)) { break }
+        if (-not (Get-VPlanListener)) { break }
         Start-Sleep -Milliseconds 500
     }
 
     if ($launcherPid -and $launcherPid -ne $appPid -and (Get-Process -Id $launcherPid -ErrorAction SilentlyContinue)) {
         Write-Host "  Deteniendo el lanzador de Maven (PID $launcherPid)..."
-        Stop-TaskFlowProcessTree -ProcessId $launcherPid
+        Stop-VPlanProcessTree -ProcessId $launcherPid
     }
 
     # Red de seguridad: solo procesos Java que pertenezcan a esta carpeta.
@@ -211,7 +211,7 @@ try {
         Remove-Item -LiteralPath $pidFile -Force -ErrorAction SilentlyContinue
     }
 
-    if (Get-TaskFlowListener) {
+    if (Get-VPlanListener) {
         throw "El puerto 8080 sigue ocupado. Revisa el proceso con Get-NetTCPConnection -LocalPort 8080."
     }
 
@@ -219,7 +219,7 @@ try {
     Write-Host "VPlan detenido. El puerto 8080 esta libre." -ForegroundColor Green
     exit 0
 } catch {
-    Write-TaskFlowError $_.Exception.Message
-    Wait-TaskFlowExit
+    Write-VPlanError $_.Exception.Message
+    Wait-VPlanExit
     exit 1
 }

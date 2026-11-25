@@ -1,6 +1,6 @@
-package com.taskflow.task;
+package com.vplan.task;
 
-import com.taskflow.task.dto.TareaRequest;
+import com.vplan.task.dto.TareaRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

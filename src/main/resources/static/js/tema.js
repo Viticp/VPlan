@@ -8,7 +8,7 @@
    - Solo hay dos estados: 'claro' y 'oscuro'.
    ========================================================================== */
 
-const CLAVE = 'taskflow-tema';
+const CLAVE = 'vplan-tema';
 const OSCURO = 'oscuro';
 const CLARO = 'claro';
 const COLOR_CLARO = '#f3f6fb';

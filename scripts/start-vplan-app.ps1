@@ -2,7 +2,7 @@
 #
 # Lo invoca el acceso directo "VPlan".
 #
-# 1. Reutiliza start-taskflow.ps1 para arrancar o detectar VPlan.
+# 1. Reutiliza start-vplan.ps1 para arrancar o detectar VPlan.
 # 2. Abre Chrome en modo --app con un perfil dedicado y espera a que se cierre.
 # 3. Solo detiene el servidor si lo arranco este mismo lanzador.
 #
@@ -15,13 +15,13 @@ $ErrorActionPreference = "Stop"
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $logDirectory = Join-Path $projectRoot "logs"
-$pidFile = Join-Path $logDirectory "taskflow.pid"
+$pidFile = Join-Path $logDirectory "vplan.pid"
 $appPidFile = Join-Path $logDirectory "vplan-app.pid"
 $lockFile = Join-Path $logDirectory "vplan-app.lock"
 $appLog = Join-Path $logDirectory "vplan-app.log"
 $chromeProfile = Join-Path $logDirectory "vplan-chrome-profile"
-$startScript = Join-Path $PSScriptRoot "start-taskflow.ps1"
-$stopScript = Join-Path $PSScriptRoot "stop-taskflow.ps1"
+$startScript = Join-Path $PSScriptRoot "start-vplan.ps1"
+$stopScript = Join-Path $PSScriptRoot "stop-vplan.ps1"
 $powershell = Join-Path $env:SystemRoot "System32\WindowsPowerShell\v1.0\powershell.exe"
 
 $lockAcquired = $false
@@ -114,15 +114,15 @@ function Exit-App {
 
 try {
     if (-not (Test-Path -LiteralPath $startScript)) {
-        throw "No se encuentra scripts\start-taskflow.ps1."
+        throw "No se encuentra scripts\start-vplan.ps1."
     }
     if (-not (Test-Path -LiteralPath $stopScript)) {
-        throw "No se encuentra scripts\stop-taskflow.ps1."
+        throw "No se encuentra scripts\stop-vplan.ps1."
     }
 
     $chrome = Get-ChromePath
     if (-not $chrome) {
-        throw "No se ha encontrado Google Chrome. Instalalo o usa .\scripts\start-taskflow.ps1."
+        throw "No se ha encontrado Google Chrome. Instalalo o usa .\scripts\start-vplan.ps1."
     }
 
     if (-not (Test-Path -LiteralPath $logDirectory)) {
@@ -178,7 +178,7 @@ try {
         -File $startScript -NoBrowser -NoPause -OwnerPid $PID
     $startExit = $LASTEXITCODE
     if ($startExit -ne 0) {
-        throw "No se pudo arrancar VPlan (codigo $startExit). Revisa logs\taskflow-*.log."
+        throw "No se pudo arrancar VPlan (codigo $startExit). Revisa logs\vplan-*.log."
     }
 
     $healthAfter = Get-VPlanHealth
@@ -258,7 +258,7 @@ try {
             Write-AppLog "Deteniendo VPlan iniciado por este lanzador (AppPid=$appPid)."
             & $powershell -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden `
                 -File $stopScript -NoPause
-            Write-AppLog "stop-taskflow.ps1 termino con codigo $LASTEXITCODE."
+            Write-AppLog "stop-vplan.ps1 termino con codigo $LASTEXITCODE."
         } else {
             Write-AppLog "No se detiene VPlan: el PID que escucha ($listenerPid) no coincide con el iniciado ($appPid)."
         }

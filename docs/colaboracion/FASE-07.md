@@ -58,7 +58,7 @@ Otras decisiones de implementación:
 | Decisión | Motivo |
 |---|---|
 | `data-theme="oscuro"` en `<html>` y variables redefinidas | No duplicar reglas de componentes |
-| Clave `taskflow-tema` con valores `claro` / `oscuro` | Preferencia explícita y persistente |
+| Clave `vplan-tema` con valores `claro` / `oscuro` | Preferencia explícita y persistente |
 | Script inline antes del CSS pintado | Evita el destello blanco al abrir en oscuro |
 | `role="switch"` + `aria-checked` + texto | Estado comprensible con teclado y lector |
 | Escuchar `prefers-color-scheme` y `storage` | Seguir al sistema y sincronizar pestañas |

@@ -1,21 +1,21 @@
 spring:
   application:
-    name: taskflow
+    name: vplan
 
   datasource:
     # Los datos de conexion NO se escriben en el codigo: se leen de variables de entorno.
-    # TASKFLOW_DB_PASSWORD es obligatoria; si falta, la aplicacion no arranca.
+    # VPLAN_DB_PASSWORD es obligatoria; si falta, la aplicacion no arranca.
     # Esta URL es SOLO para uso local (MySQL en el mismo equipo, sin TLS).
-    # Si algun dia se publica, define TASKFLOW_DB_URL con sslMode=VERIFY_IDENTITY.
+    # Si algun dia se publica, define VPLAN_DB_URL con sslMode=VERIFY_IDENTITY.
     # connectionTimeZone + forceConnectionTimeZoneToSession fijan la sesión de
     # MySQL en UTC. Sin eso, el servidor devolvía los TIMESTAMP en la zona del
     # sistema y las marcas se desplazaban al leerlas desde Java.
-    url: "${TASKFLOW_DB_URL:jdbc:mysql://127.0.0.1:3306/taskflow?sslMode=DISABLED&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true}"
-    username: "${TASKFLOW_DB_USER:taskflow_app}"
-    password: "${TASKFLOW_DB_PASSWORD}"
+    url: "${VPLAN_DB_URL:jdbc:mysql://127.0.0.1:3306/vplan?sslMode=DISABLED&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true}"
+    username: "${VPLAN_DB_USER:vplan_app}"
+    password: "${VPLAN_DB_PASSWORD}"
     hikari:
       maximum-pool-size: 5
-      pool-name: taskflow-pool
+      pool-name: vplan-pool
       # Si MySQL no responde, /api/health debe fallar en segundos, no en 30.
       connection-timeout: 3000
       validation-timeout: 2000
@@ -57,5 +57,5 @@ server:
 
 logging:
   level:
-    com.taskflow: INFO
+    com.vplan: INFO
     org.flywaydb: INFO

@@ -29,7 +29,7 @@ se mostraron secretos; no se hizo commit ni push.
 | ID | Decisión | Aplicación |
 |---|---|---|
 | D1 | Documentar MySQL escuchando en todas las interfaces | Documentado en INSTALACION, README y este informe; sin cambios en `my.ini` ni firewall |
-| D2 | Restauración en base de pruebas independiente | Intentada; bloqueada por permisos de `taskflow_app`; no se forzó nada |
+| D2 | Restauración en base de pruebas independiente | Intentada; bloqueada por permisos de `vplan_app`; no se forzó nada |
 | D3 | MIT si el repositorio es público | No se creó `LICENSE` porque el repositorio será privado inicialmente |
 | D4 | Accesos directos con ventana normal | Creados y probados en el escritorio |
 | D5 | Repositorio privado inicialmente | Documentado; el remoto aún no existe o no es accesible |
@@ -43,8 +43,8 @@ se mostraron secretos; no se hizo commit ni push.
 
 | Archivo | Contenido |
 |---|---|
-| `scripts/start-taskflow.ps1` | Arranque diario con preflight, health, log y PID |
-| `scripts/stop-taskflow.ps1` | Parada segura, liberación del puerto y limpieza de Maven |
+| `scripts/start-vplan.ps1` | Arranque diario con preflight, health, log y PID |
+| `scripts/stop-vplan.ps1` | Parada segura, liberación del puerto y limpieza de Maven |
 | `scripts/create-shortcuts.ps1` | Accesos directos "VPlan" y "Detener VPlan" |
 | `docs/USO-DIARIO.md` | Guía corta de arranque, parada, copias y problemas |
 | `docs/colaboracion/FASE-09.md` | Este informe |
@@ -55,7 +55,7 @@ se mostraron secretos; no se hizo commit ni push.
 |---|---|
 | `INSTALACION.md` | Uso diario, logs, accesos directos, restauración segura, traslado, diagnóstico y hallazgo de MySQL |
 | `README.md` | Estado final, comandos, estructura, pruebas, seguridad, publicación y tabla de fases |
-| `scripts/restore-db.ps1` | Solo el mensaje que sugería `Ctrl+C`; ahora remite a `stop-taskflow.ps1`. Sin cambios de comportamiento |
+| `scripts/restore-db.ps1` | Solo el mensaje que sugería `Ctrl+C`; ahora remite a `stop-vplan.ps1`. Sin cambios de comportamiento |
 
 ### No modificados
 
@@ -73,18 +73,18 @@ Comprobado con `git diff --name-only`: ningún archivo de `src/`, `pom.xml`,
 
 ### 4.1 Arranque
 
-`start-taskflow.ps1`:
+`start-vplan.ps1`:
 
 1. Carga `set-dev-env.ps1` en su propia sesión (el proceso hijo hereda el entorno).
-2. Exige `TASKFLOW_DB_PASSWORD` sin imprimirla.
+2. Exige `VPLAN_DB_PASSWORD` sin imprimirla.
 3. Verifica JDK 21+ y MySQL en `127.0.0.1:3306`.
 4. Si el puerto 8080 está ocupado:
    - VPlan: espera health y abre el navegador; no duplica.
    - Otro proceso: se niega y muestra PID y nombre.
 5. Arranca `mvnw spring-boot:run` mediante un wrapper `.cmd` en segundo plano.
-6. Redirige toda la salida a `logs/taskflow-AAAA-MM-DD_HHmmss.log`.
+6. Redirige toda la salida a `logs/vplan-AAAA-MM-DD_HHmmss.log`.
 7. Espera `/api/health` con `status=UP` y `database=UP` (90 s por defecto).
-8. Guarda `LauncherPid`, `AppPid`, fecha y log en `logs/taskflow.pid`.
+8. Guarda `LauncherPid`, `AppPid`, fecha y log en `logs/vplan.pid`.
 9. Abre `http://localhost:8080` salvo `-NoBrowser`.
 10. Si falla, muestra las últimas líneas del log, limpia el proceso y sale con
     código 1.
@@ -93,9 +93,9 @@ Opciones: `-NoBrowser`, `-TimeoutSeconds`, `-Foreground`, `-NoPause`.
 
 ### 4.2 Parada
 
-`stop-taskflow.ps1`:
+`stop-vplan.ps1`:
 
-1. Lee `logs/taskflow.pid` y el proceso que escucha en 8080.
+1. Lee `logs/vplan.pid` y el proceso que escucha en 8080.
 2. Verifica que es Java y que su línea de comandos contiene VPlan.
 3. Intenta un cierre ordenado; si no termina, fuerza el árbol del proceso.
 4. Detiene también el lanzador de Maven.
@@ -142,8 +142,8 @@ proceso ajeno (sería destructivo y no era necesario).
 ### 5.2 Persistencia
 
 1. Se creó la tarea temporal `FASE9_TEMP_persistencia` (id 72).
-2. Se paró VPlan con `stop-taskflow.ps1`.
-3. Se volvió a arrancar con `start-taskflow.ps1`.
+2. Se paró VPlan con `stop-vplan.ps1`.
+3. Se volvió a arrancar con `start-vplan.ps1`.
 4. `GET /api/tareas/72` devolvió la misma tarea, estado `PENDIENTE`.
 5. Se eliminó la tarea.
 
@@ -152,7 +152,7 @@ Resultado: **1 / 1 tarea conservada**. La base quedó a **0 tareas**.
 ### 5.3 Copia de seguridad
 
 ```text
-Archivo: backups\taskflow-2026-11-17_132926.sql
+Archivo: backups\vplan-2026-11-17_132926.sql
 Tamano : 3.722 bytes (3,6 KB)
 Contiene CREATE TABLE `tareas`: si
 Contiene CREATE TABLE `flyway_schema_history`: si
@@ -170,10 +170,10 @@ del esquema y del historial de Flyway.
 | Archivo sin tablas | `El archivo no parece una copia completa de VPlan...` |
 | Aplicación en marcha | `Hay algo escuchando en el puerto 8080...` |
 | Confirmación con `NO` | `Restauracion cancelada. No se ha modificado nada.` |
-| Base `taskflow_restore_test` | **No ejecutada**: `ERROR 1044 (42000): Access denied for user 'taskflow_app'@'localhost' to database 'taskflow_restore_test'` |
+| Base `vplan_restore_test` | **No ejecutada**: `ERROR 1044 (42000): Access denied for user 'vplan_app'@'localhost' to database 'vplan_restore_test'` |
 
-La restauración real sobre `taskflow` **no se ejecutó** para no tocar los datos.
-`taskflow_app` solo tiene permisos sobre `taskflow.*`; no puede crear ni usar la
+La restauración real sobre `vplan` **no se ejecutó** para no tocar los datos.
+`vplan_app` solo tiene permisos sobre `vplan.*`; no puede crear ni usar la
 base de pruebas. El SQL que debe ejecutar un administrador está en
 `INSTALACION.md`, sección 7.
 
@@ -197,12 +197,12 @@ TAREAS=0
 FLYWAY=1|1
 FLYWAY=2|1
 8080/9222 LIBRES
-PROCESOS TASKFLOW: NINGUNO
+PROCESOS VPLAN: NINGUNO
 ```
 
 ### 5.7 Seguridad y documentación
 
-- `check-no-secrets.ps1`: **OK**, el valor de `TASKFLOW_DB_PASSWORD` no aparece en
+- `check-no-secrets.ps1`: **OK**, el valor de `VPLAN_DB_PASSWORD` no aparece en
   ningún archivo del proyecto.
 - `.env.local`, `backups/`, `logs/` y `target/` no están en el índice de Git.
 - Los enlaces locales de README, INSTALACION y USO-DIARIO resuelven.
@@ -227,18 +227,18 @@ No se modificó nada (D1). Procedimiento con administrador en
 Bloqueada por permisos. Para habilitarla, un administrador debe ejecutar:
 
 ```sql
-CREATE DATABASE taskflow_restore_test
+CREATE DATABASE vplan_restore_test
   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 
 GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, REFERENCES, INDEX, ALTER
-  ON taskflow_restore_test.* TO 'taskflow_app'@'localhost';
+  ON vplan_restore_test.* TO 'vplan_app'@'localhost';
 ```
 
 Después se puede repetir con:
 
 ```powershell
-.\scripts\restore-db.ps1 -BackupFile ".\backups\taskflow-2026-11-17_132926.sql" `
-  -Database taskflow_restore_test -Force
+.\scripts\restore-db.ps1 -BackupFile ".\backups\vplan-2026-11-17_132926.sql" `
+  -Database vplan_restore_test -Force
 ```
 
 ### 6.3 Publicación
@@ -264,8 +264,8 @@ Después se puede repetir con:
 - Rama `main`, **0 commits**.
 - **114 archivos preparados** en el índice: los 109 de la Fase 8 más los ocho
   archivos de esta fase.
-- Preparados en esta fase: `scripts/start-taskflow.ps1`,
-  `scripts/stop-taskflow.ps1`, `scripts/create-shortcuts.ps1`,
+- Preparados en esta fase: `scripts/start-vplan.ps1`,
+  `scripts/stop-vplan.ps1`, `scripts/create-shortcuts.ps1`,
   `docs/USO-DIARIO.md`, `docs/colaboracion/FASE-09.md`, `README.md`,
   `INSTALACION.md` y `scripts/restore-db.ps1`.
 - No queda ningún cambio sin preparar y `.env.local`, `backups/`, `logs/` y
@@ -286,7 +286,7 @@ Después se puede repetir con:
 .\mvnw.cmd test
 
 # 2. Arrancar sin navegador
-.\scripts\start-taskflow.ps1 -NoBrowser
+.\scripts\start-vplan.ps1 -NoBrowser
 
 # 3. API (deja 4 tareas temporales)
 node target\verify-phase8-api.mjs
@@ -298,7 +298,7 @@ node target\verify-phase9-ui.mjs
 node target\verify-phase9-phase7.mjs
 
 # 6. Parar, copiar y comprobar la base
-.\scripts\stop-taskflow.ps1
+.\scripts\stop-vplan.ps1
 .\scripts\backup-db.ps1
 ```
 

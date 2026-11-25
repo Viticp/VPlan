@@ -1,6 +1,6 @@
-package com.taskflow.common;
+package com.vplan.common;
 
-import com.taskflow.task.TareaNoEncontradaException;
+import com.vplan.task.TareaNoEncontradaException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

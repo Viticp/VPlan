@@ -5,11 +5,11 @@
 #
 # Ruta de JDK personalizada (opcional):
 #     . .\scripts\set-dev-env.ps1 -JavaHome "C:\ruta\al\jdk"
-#     o define TASKFLOW_JAVA_HOME antes de ejecutarlo.
+#     o define VPLAN_JAVA_HOME antes de ejecutarlo.
 #
 # Busqueda del JDK: se usa el primero que sea 21 o superior.
 #   1. Parametro -JavaHome
-#   2. Variable TASKFLOW_JAVA_HOME
+#   2. Variable VPLAN_JAVA_HOME
 #   3. Variable JAVA_HOME
 #   4. javac.exe disponible en el PATH
 #   5. Rutas habituales de instalacion en Windows
@@ -22,7 +22,7 @@ param(
 )
 
 $jdk = & {
-    function Get-TaskFlowJdkInfo {
+    function Get-VPlanJdkInfo {
         param([string]$Path)
 
         if (-not $Path) { return $null }
@@ -50,7 +50,7 @@ $jdk = & {
     $seen = @{}
     $candidates = New-Object System.Collections.Generic.List[string]
 
-    function Add-TaskFlowCandidate {
+    function Add-VPlanCandidate {
         param([string]$Path)
 
         if (-not $Path) { return }
@@ -65,48 +65,48 @@ $jdk = & {
         }
     }
 
-    Add-TaskFlowCandidate $JavaHome
-    Add-TaskFlowCandidate $env:TASKFLOW_JAVA_HOME
-    Add-TaskFlowCandidate $env:JAVA_HOME
+    Add-VPlanCandidate $JavaHome
+    Add-VPlanCandidate $env:VPLAN_JAVA_HOME
+    Add-VPlanCandidate $env:JAVA_HOME
 
     $javacOnPath = Get-Command "javac.exe" -ErrorAction SilentlyContinue
     if ($javacOnPath) {
-        Add-TaskFlowCandidate (Split-Path -Parent (Split-Path -Parent $javacOnPath.Source))
+        Add-VPlanCandidate (Split-Path -Parent (Split-Path -Parent $javacOnPath.Source))
     }
 
     # Rutas habituales de instalacion. No son un requisito: solo se usan si
     # existen y ninguna de las opciones anteriores ha servido.
-    function Join-TaskFlowPath {
+    function Join-VPlanPath {
         param([string]$Base, [string]$Child)
         if (-not $Base) { return "" }
         return (Join-Path $Base $Child)
     }
 
     $installRoots = @(
-        (Join-TaskFlowPath $env:ProgramFiles "Eclipse Adoptium"),
-        (Join-TaskFlowPath $env:ProgramFiles "Java"),
-        (Join-TaskFlowPath $env:ProgramFiles "Microsoft"),
-        (Join-TaskFlowPath $env:ProgramFiles "Amazon Corretto"),
-        (Join-TaskFlowPath $env:ProgramFiles "Zulu"),
-        (Join-TaskFlowPath $env:ProgramFiles "BellSoft"),
-        (Join-TaskFlowPath $env:LOCALAPPDATA "Programs\Eclipse Adoptium")
+        (Join-VPlanPath $env:ProgramFiles "Eclipse Adoptium"),
+        (Join-VPlanPath $env:ProgramFiles "Java"),
+        (Join-VPlanPath $env:ProgramFiles "Microsoft"),
+        (Join-VPlanPath $env:ProgramFiles "Amazon Corretto"),
+        (Join-VPlanPath $env:ProgramFiles "Zulu"),
+        (Join-VPlanPath $env:ProgramFiles "BellSoft"),
+        (Join-VPlanPath $env:LOCALAPPDATA "Programs\Eclipse Adoptium")
     )
     foreach ($root in $installRoots) {
         if (-not $root -or -not (Test-Path -LiteralPath $root)) { continue }
         $directories = Get-ChildItem -LiteralPath $root -Directory -ErrorAction SilentlyContinue |
             Sort-Object Name -Descending
         foreach ($directory in $directories) {
-            Add-TaskFlowCandidate $directory.FullName
+            Add-VPlanCandidate $directory.FullName
         }
     }
 
     # NetBeans incluye un JDK en esta ruta habitual. No es un requisito.
-    Add-TaskFlowCandidate (Join-TaskFlowPath $env:ProgramFiles "Apache NetBeans\jdk")
+    Add-VPlanCandidate (Join-VPlanPath $env:ProgramFiles "Apache NetBeans\jdk")
 
     $rejected = @()
     $selected = $null
     foreach ($candidate in $candidates) {
-        $info = Get-TaskFlowJdkInfo -Path $candidate
+        $info = Get-VPlanJdkInfo -Path $candidate
         if (-not $info) { continue }
         if ($info.Major -lt 21) {
             $rejected += $info
@@ -117,7 +117,7 @@ $jdk = & {
     }
 
     if (-not $selected) {
-        $message = "No se ha encontrado un JDK 21 o superior.`n`nBusqueda realizada:`n  1. Parametro -JavaHome`n  2. Variable TASKFLOW_JAVA_HOME`n  3. Variable JAVA_HOME`n  4. javac.exe en el PATH`n  5. Rutas habituales de instalacion en Windows`n"
+        $message = "No se ha encontrado un JDK 21 o superior.`n`nBusqueda realizada:`n  1. Parametro -JavaHome`n  2. Variable VPLAN_JAVA_HOME`n  3. Variable JAVA_HOME`n  4. javac.exe en el PATH`n  5. Rutas habituales de instalacion en Windows`n"
 
         if ($rejected.Count -gt 0) {
             $message += "`nSe descartaron por ser anteriores a Java 21:`n"
@@ -187,9 +187,9 @@ Write-Host ""
 # cmd /c evita el ruido de PowerShell 5.1 con la salida de error de "java -version".
 & cmd /c "java -version 2>&1" | ForEach-Object { Write-Host "  $_" }
 
-if (-not $env:TASKFLOW_DB_PASSWORD) {
+if (-not $env:VPLAN_DB_PASSWORD) {
     Write-Host ""
-    Write-Host "AVISO: TASKFLOW_DB_PASSWORD no esta definida." -ForegroundColor Yellow
-    Write-Host '  Ejecuta: $env:TASKFLOW_DB_PASSWORD = "la_contrasena_de_taskflow_app"'
+    Write-Host "AVISO: VPLAN_DB_PASSWORD no esta definida." -ForegroundColor Yellow
+    Write-Host '  Ejecuta: $env:VPLAN_DB_PASSWORD = "la_contrasena_de_vplan_app"'
     Write-Host "  Sin ella, la aplicacion no podra conectarse a MySQL."
 }

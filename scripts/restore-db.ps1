@@ -1,7 +1,7 @@
 # VPlan - Restauracion de una copia de seguridad.
 #
 # Uso:
-#     .\scripts\restore-db.ps1 -BackupFile ".\backups\taskflow-2026-11-17_120000.sql"
+#     .\scripts\restore-db.ps1 -BackupFile ".\backups\vplan-2026-11-17_120000.sql"
 #
 # La restauracion REEMPLAZA el contenido actual de la base de datos. Por eso:
 #   1. Comprueba que el archivo existe y contiene las tablas de VPlan.
@@ -11,14 +11,14 @@
 # Para automatizaciones (solo con la aplicacion parada) se puede usar -Force,
 # que omite la confirmacion interactiva.
 #
-# La contrasena se toma de TASKFLOW_DB_PASSWORD o de .env.local y nunca se
+# La contrasena se toma de VPLAN_DB_PASSWORD o de .env.local y nunca se
 # imprime ni se pasa por la linea de comandos.
 
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true, Position = 0)]
     [string]$BackupFile,
-    [string]$Database = "taskflow",
+    [string]$Database = "vplan",
     [string]$DbHost = "127.0.0.1",
     [int]$Port = 3306,
     [string]$User = "",
@@ -53,16 +53,16 @@ if ($content -match '(?im)^\s*(CREATE\s+DATABASE|USE\s+`?[A-Za-z0-9_]+`?\s*;)') 
 
 $listener = Get-NetTCPConnection -LocalPort 8080 -State Listen -ErrorAction SilentlyContinue
 if ($listener -and -not $Force) {
-    throw "Hay algo escuchando en el puerto 8080. Deten VPlan con .\scripts\stop-taskflow.ps1 (o Ctrl+C si lo arrancaste a mano) antes de restaurar. Si estas seguro de que no es VPlan, repite con -Force."
+    throw "Hay algo escuchando en el puerto 8080. Deten VPlan con .\scripts\stop-vplan.ps1 (o Ctrl+C si lo arrancaste a mano) antes de restaurar. Si estas seguro de que no es VPlan, repite con -Force."
 }
 
 $envValues = Read-DotEnvFile -Path (Join-Path $projectRoot ".env.local")
 
 if (-not $User) {
-    $User = Resolve-TaskFlowSetting -Name "TASKFLOW_DB_USER" -EnvFileValues $envValues -Default "taskflow_app"
+    $User = Resolve-VPlanSetting -Name "VPLAN_DB_USER" -EnvFileValues $envValues -Default "vplan_app"
 }
 
-$password = Resolve-TaskFlowSetting -Name "TASKFLOW_DB_PASSWORD" -EnvFileValues $envValues
+$password = Resolve-VPlanSetting -Name "VPLAN_DB_PASSWORD" -EnvFileValues $envValues
 if (-not $password) {
     throw @"
 Falta la contrasena de la base de datos.

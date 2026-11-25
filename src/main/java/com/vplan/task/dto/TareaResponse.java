@@ -1,8 +1,8 @@
-package com.taskflow.task.dto;
+package com.vplan.task.dto;
 
-import com.taskflow.task.Estado;
-import com.taskflow.task.Prioridad;
-import com.taskflow.task.Tarea;
+import com.vplan.task.Estado;
+import com.vplan.task.Prioridad;
+import com.vplan.task.Tarea;
 
 import java.time.Instant;
 import java.time.LocalDate;

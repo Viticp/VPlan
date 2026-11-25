@@ -1,4 +1,4 @@
-package com.taskflow.common;
+package com.vplan.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 

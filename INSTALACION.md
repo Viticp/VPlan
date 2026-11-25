@@ -47,7 +47,7 @@ varias instalaciones de Java, lo importante es que VPlan encuentre una válida:
 el script de entorno busca en este orden:
 
 1. El parámetro `-JavaHome`.
-2. La variable `TASKFLOW_JAVA_HOME`.
+2. La variable `VPLAN_JAVA_HOME`.
 3. La variable `JAVA_HOME`.
 4. `javac.exe` disponible en el `PATH`.
 5. Las rutas habituales de instalación de Windows.
@@ -138,7 +138,7 @@ Debe aparecer `127.0.0.1`. Si aparece `::` o `0.0.0.0`, MySQL sigue aceptando
 conexiones de la red local.
 
 > **Nota:** si no puedes editar `my.ini`, al menos no abras el puerto 3306 en el
-> firewall. El usuario `taskflow_app` solo existe para `localhost`, así que un
+> firewall. El usuario `vplan_app` solo existe para `localhost`, así que un
 > equipo remoto no puede autenticarse con él, pero es mejor cerrar el puerto.
 
 > **Estado verificado en este equipo (17/11/2026):** MySQL está configurado con
@@ -151,7 +151,7 @@ conexiones de la red local.
 ## 4. Crear la base de datos y el usuario
 
 El script [`database/00_create_database_and_user.sql`](database/00_create_database_and_user.sql)
-crea la base `taskflow`, el usuario `taskflow_app` y le concede permisos **solo
+crea la base `vplan`, el usuario `vplan_app` y le concede permisos **solo
 sobre ese esquema**.
 
 1. Abre el archivo y sustituye `CAMBIA_ESTA_CONTRASENA` por una contraseña larga
@@ -173,7 +173,7 @@ cmd /c "mysql -u root -p < database\00_create_database_and_user.sql"
 cmd /c "mysql -u root -p < database\01_verify.sql"
 ```
 
-Deben aparecer la base `taskflow`, el usuario `taskflow_app` y sus permisos.
+Deben aparecer la base `vplan`, el usuario `vplan_app` y sus permisos.
 No concedas privilegios globales.
 
 > **Importante:** el archivo versionado debe conservar siempre el marcador
@@ -201,17 +201,17 @@ Desde la carpeta del proyecto:
 Alternativa manual, solo para la sesión actual:
 
 ```powershell
-$env:TASKFLOW_DB_PASSWORD = "la_contrasena_de_taskflow_app"
+$env:VPLAN_DB_PASSWORD = "la_contrasena_de_vplan_app"
 ```
 
 ### Variables disponibles
 
 | Variable | Obligatoria | Valor por defecto | Para qué |
 |---|---|---|---|
-| `TASKFLOW_DB_PASSWORD` | Sí | — | Contraseña de `taskflow_app` |
-| `TASKFLOW_DB_USER` | No | `taskflow_app` | Usuario de MySQL |
-| `TASKFLOW_DB_URL` | No | `jdbc:mysql://127.0.0.1:3306/taskflow...` | URL JDBC |
-| `TASKFLOW_JAVA_HOME` | No | — | Ruta a un JDK 21+ concreto |
+| `VPLAN_DB_PASSWORD` | Sí | — | Contraseña de `vplan_app` |
+| `VPLAN_DB_USER` | No | `vplan_app` | Usuario de MySQL |
+| `VPLAN_DB_URL` | No | `jdbc:mysql://127.0.0.1:3306/vplan...` | URL JDBC |
+| `VPLAN_JAVA_HOME` | No | — | Ruta a un JDK 21+ concreto |
 
 Nunca escribas la contraseña en `application.yml`, en el README ni en un script.
 
@@ -224,7 +224,7 @@ Nunca escribas la contraseña en `application.yml`, en el README ni en un script
 Desde la carpeta del proyecto:
 
 ```powershell
-.\scripts\start-taskflow.ps1
+.\scripts\start-vplan.ps1
 ```
 
 No hace falta cargar el entorno a mano: el script ejecuta `set-dev-env.ps1`,
@@ -236,7 +236,7 @@ La primera vez Maven descarga sus dependencias. Si el equipo es lento, amplía e
 tiempo de espera:
 
 ```powershell
-.\scripts\start-taskflow.ps1 -TimeoutSeconds 180
+.\scripts\start-vplan.ps1 -TimeoutSeconds 180
 ```
 
 Opciones:
@@ -247,7 +247,7 @@ Opciones:
 | `-TimeoutSeconds 180` | Esperar más tiempo la primera vez |
 | `-Foreground` | Arrancar en primer plano y ver la salida de Maven (modo depuración) |
 
-El script crea un log por arranque en `logs\taskflow-AAAA-MM-DD_HHmmss.log`.
+El script crea un log por arranque en `logs\vplan-AAAA-MM-DD_HHmmss.log`.
 La carpeta `logs/` está ignorada por Git. Si el arranque falla, muestra las
 últimas líneas del log y no deja el proceso abierto.
 
@@ -266,7 +266,7 @@ Respuesta esperada:
 ```json
 {
   "status": "UP",
-  "application": "taskflow",
+  "application": "vplan",
   "database": "UP",
   "timestamp": "2026-11-17T09:50:00Z"
 }
@@ -279,12 +279,12 @@ accesible desde otro equipo de la red.
 ### Parar
 
 ```powershell
-.\scripts\stop-taskflow.ps1
+.\scripts\stop-vplan.ps1
 ```
 
 El script busca el proceso que escucha en 8080, comprueba que es VPlan, lo
 detiene, para también el lanzador de Maven, comprueba que el puerto queda libre y
-borra `logs\taskflow.pid`. Si no hay nada en marcha, termina sin error.
+borra `logs\vplan.pid`. Si no hay nada en marcha, termina sin error.
 
 Nunca detiene un proceso ajeno: si el puerto lo ocupa otro programa, se niega.
 Solo si estás completamente seguro puedes usar `-Force`.
@@ -306,7 +306,7 @@ Crea un único acceso directo **VPlan** en el escritorio. Al hacer doble clic:
    directo.
 
 Si VPlan ya estaba en marcha (por ejemplo, lanzado con
-`start-taskflow.ps1` o desde el IDE), el acceso directo reutiliza esa instancia
+`start-vplan.ps1` o desde el IDE), el acceso directo reutiliza esa instancia
 y **no** la detiene al cerrar la ventana. Tampoco cierra Chrome ni otras
 ventanas: solo afecta a la ventana de VPlan y al servidor que inició él mismo.
 
@@ -321,7 +321,7 @@ muestra un aviso con el error y el detalle queda en `logs\vplan-app.log`.
 Para detener VPlan manualmente sigue usando:
 
 ```powershell
-.\scripts\stop-taskflow.ps1
+.\scripts\stop-vplan.ps1
 ```
 
 Si el acceso directo ya existe y quieres reemplazarlo:
@@ -348,7 +348,7 @@ aplicación, pero la ventana de Maven debe cerrarse a mano.
 
 ### Qué debe incluir una copia
 
-Toda la base `taskflow`:
+Toda la base `vplan`:
 
 - La tabla `tareas` con tus datos.
 - La tabla `flyway_schema_history` con las migraciones aplicadas.
@@ -365,10 +365,10 @@ equipos. Usa un dump SQL.
 .\scripts\backup-db.ps1
 ```
 
-Se crea `backups\taskflow-AAAA-MM-DD_HHmmss.sql`. El script:
+Se crea `backups\vplan-AAAA-MM-DD_HHmmss.sql`. El script:
 
 - Usa `--single-transaction`, así que la copia es consistente.
-- Incluye `--no-tablespaces`, necesario porque `taskflow_app` no tiene el
+- Incluye `--no-tablespaces`, necesario porque `vplan_app` no tiene el
   privilegio global `PROCESS`.
 - Comprueba que el archivo contiene `tareas` y `flyway_schema_history`.
 - No imprime la contraseña.
@@ -381,8 +381,8 @@ La carpeta `backups/` está ignorada por Git. Guarda una copia en un lugar priva
 Con VPlan **parado**:
 
 ```powershell
-.\scripts\stop-taskflow.ps1
-.\scripts\restore-db.ps1 -BackupFile ".\backups\taskflow-2026-11-17_120000.sql"
+.\scripts\stop-vplan.ps1
+.\scripts\restore-db.ps1 -BackupFile ".\backups\vplan-2026-11-17_120000.sql"
 ```
 
 El script:
@@ -398,41 +398,41 @@ cuando estés seguro de la base de destino.
 ### Probar una restauración sin tocar tus datos
 
 La forma segura es restaurar en una base independiente, por ejemplo
-`taskflow_restore_test`. El usuario `taskflow_app` **no puede crearla ni usarla**
-con los permisos actuales: solo tiene permisos sobre `taskflow.*`. Para habilitar
+`vplan_restore_test`. El usuario `vplan_app` **no puede crearla ni usarla**
+con los permisos actuales: solo tiene permisos sobre `vplan.*`. Para habilitar
 la prueba, un usuario administrador de MySQL debe ejecutar una vez:
 
 ```sql
-CREATE DATABASE taskflow_restore_test
+CREATE DATABASE vplan_restore_test
   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 
 GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, REFERENCES, INDEX, ALTER
-  ON taskflow_restore_test.* TO 'taskflow_app'@'localhost';
+  ON vplan_restore_test.* TO 'vplan_app'@'localhost';
 ```
 
 Después:
 
 ```powershell
-.\scripts\restore-db.ps1 -BackupFile ".\backups\taskflow-2026-11-17_120000.sql" `
-  -Database taskflow_restore_test -Force
+.\scripts\restore-db.ps1 -BackupFile ".\backups\vplan-2026-11-17_120000.sql" `
+  -Database vplan_restore_test -Force
 ```
 
 Al terminar, comprueba el número de tareas y Flyway, y elimina la base de prueba
 con un usuario administrador:
 
 ```sql
-DROP DATABASE taskflow_restore_test;
+DROP DATABASE vplan_restore_test;
 ```
 
-**No restaures sobre `taskflow` solo para probar.** Si no puedes crear la base de
+**No restaures sobre `vplan` solo para probar.** Si no puedes crear la base de
 pruebas, la restauración real queda pendiente; es preferible eso a arriesgar los
 datos personales.
 
-> **Verificado en la Fase 9 (17/11/2026):** se creó una copia real de `taskflow`
-> con 0 tareas y ambas tablas (`backups/taskflow-2026-11-17_132926.sql`, 3,6 KB).
+> **Verificado en la Fase 9 (17/11/2026):** se creó una copia real de `vplan`
+> con 0 tareas y ambas tablas (`backups/vplan-2026-11-17_132926.sql`, 3,6 KB).
 > Se probaron las negativas del script: archivo inexistente, archivo sin tablas,
 > aplicación en marcha y cancelación de la confirmación. La restauración en
-> `taskflow_restore_test` **no se pudo ejecutar** porque `taskflow_app` recibió
+> `vplan_restore_test` **no se pudo ejecutar** porque `vplan_app` recibió
 > `ERROR 1044 (42000): Access denied` al intentar crear la base. No se forzó nada
 > ni se tocó la base real.
 
@@ -442,17 +442,17 @@ Si prefieres hacerlo a mano, el comando equivalente es:
 
 ```powershell
 & "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqldump.exe" `
-  --host=127.0.0.1 --port=3306 --user=taskflow_app `
+  --host=127.0.0.1 --port=3306 --user=vplan_app `
   --single-transaction --no-tablespaces --skip-add-locks --skip-triggers `
   --set-gtid-purged=OFF --default-character-set=utf8mb4 `
-  --result-file="backups\taskflow-manual.sql" taskflow
+  --result-file="backups\vplan-manual.sql" vplan
 ```
 
 La contraseña se pedirá de forma interactiva. Para restaurar, con la aplicación
 parada:
 
 ```powershell
-cmd /c "mysql --host=127.0.0.1 --port=3306 --user=taskflow_app --default-character-set=utf8mb4 taskflow < backups\taskflow-manual.sql"
+cmd /c "mysql --host=127.0.0.1 --port=3306 --user=vplan_app --default-character-set=utf8mb4 vplan < backups\vplan-manual.sql"
 ```
 
 ---
@@ -478,10 +478,10 @@ siendo privado y sin commits, copia la carpeta fuente. En ambos casos excluye
 - [ ] MySQL 8.0 o superior instalado, en marcha y con `bind-address=127.0.0.1`.
 - [ ] Proyecto copiado o clonado, sin `target/`.
 - [ ] Copia de seguridad `.sql` copiada de forma privada.
-- [ ] Base `taskflow` y usuario `taskflow_app` creados con una contraseña nueva.
+- [ ] Base `vplan` y usuario `vplan_app` creados con una contraseña nueva.
 - [ ] `.env.local` creado con `set-db-password.ps1`.
 - [ ] Copia restaurada con `restore-db.ps1`.
-- [ ] `.\scripts\start-taskflow.ps1` arranca sin errores y abre el navegador.
+- [ ] `.\scripts\start-vplan.ps1` arranca sin errores y abre el navegador.
 - [ ] `/api/health` responde `UP` y las tareas aparecen en la interfaz.
 - [ ] Flyway sigue en la versión 2.
 - [ ] `.\scripts\create-shortcuts.ps1` crea el acceso directo VPlan (opcional).
@@ -500,10 +500,10 @@ cmd /c "mysql -u root -p < database\00_create_database_and_user.sql"
 . .\scripts\set-dev-env.ps1
 
 # 4. Restaurar la copia
-.\scripts\restore-db.ps1 -BackupFile "C:\ruta\a\taskflow-2026-11-17_120000.sql"
+.\scripts\restore-db.ps1 -BackupFile "C:\ruta\a\vplan-2026-11-17_120000.sql"
 
 # 5. Arrancar y comprobar
-.\scripts\start-taskflow.ps1
+.\scripts\start-vplan.ps1
 Invoke-RestMethod http://localhost:8080/api/health | ConvertTo-Json
 ```
 
@@ -519,19 +519,19 @@ si el script agota el tiempo, repite con `-TimeoutSeconds 180`.
 |---|---|---|
 | `No se ha encontrado un JDK 21 o superior` | No hay JDK o el que hay es antiguo | Instala Temurin 21+ o usa `-JavaHome` |
 | `java -version` muestra 8 u 11 | Otra instalación manda en el `PATH` | El script de entorno busca una válida; si no, indica `-JavaHome` |
-| `Access denied for user 'taskflow_app'` | Contraseña incorrecta o usuario no creado | Revisa `database/00_create_database_and_user.sql` y `.env.local` |
+| `Access denied for user 'vplan_app'` | Contraseña incorrecta o usuario no creado | Revisa `database/00_create_database_and_user.sql` y `.env.local` |
 | `Communications link failure` | MySQL parado | `Get-Service MySQL80` y `Start-Service MySQL80` |
-| `Unknown database 'taskflow'` | No se ejecutó el script de creación | Ejecuta `00_create_database_and_user.sql` |
+| `Unknown database 'vplan'` | No se ejecutó el script de creación | Ejecuta `00_create_database_and_user.sql` |
 | `Port 8080 was already in use` | Otra aplicación usa el puerto | `Get-NetTCPConnection -LocalPort 8080` y detén ese proceso |
-| El arranque dice que VPlan ya está en marcha | Ya hay una instancia escuchando en 8080 | Es normal: abre el navegador. Si `/api/health` no responde `UP`, revisa el log y usa `stop-taskflow.ps1` |
+| El arranque dice que VPlan ya está en marcha | Ya hay una instancia escuchando en 8080 | Es normal: abre el navegador. Si `/api/health` no responde `UP`, revisa el log y usa `stop-vplan.ps1` |
 | El puerto 8080 lo ocupa otro programa | Hay un proceso ajeno | El arranque y la parada se niegan a tocarlo. Identifícalo con `Get-NetTCPConnection -LocalPort 8080` |
-| `Falta TASKFLOW_DB_PASSWORD` | No existe `.env.local` o no se cargó | Ejecuta `.\scripts\set-db-password.ps1` y vuelve a arrancar |
-| No sé dónde está el error de arranque | La salida va al log | Abre `logs\taskflow-AAAA-MM-DD_HHmmss.log`; el script muestra las últimas líneas si falla |
-| `Access denied ... taskflow_restore_test` | `taskflow_app` no tiene permisos sobre la base de prueba | Pide a un administrador que cree la base y conceda permisos (sección 7) |
+| `Falta VPLAN_DB_PASSWORD` | No existe `.env.local` o no se cargó | Ejecuta `.\scripts\set-db-password.ps1` y vuelve a arrancar |
+| No sé dónde está el error de arranque | La salida va al log | Abre `logs\vplan-AAAA-MM-DD_HHmmss.log`; el script muestra las últimas líneas si falla |
+| `Access denied ... vplan_restore_test` | `vplan_app` no tiene permisos sobre la base de prueba | Pide a un administrador que cree la base y conceda permisos (sección 7) |
 | El acceso directo no aparece | No se creó o el escritorio es otro | Ejecuta `.\scripts\create-shortcuts.ps1` y revisa la ruta que imprime |
-| Al cerrar la ventana de VPlan no se detiene el servidor | VPlan ya estaba en marcha por otro método | Es intencionado: el acceso directo solo detiene lo que arrancó él. Para pararlo usa `stop-taskflow.ps1` |
+| Al cerrar la ventana de VPlan no se detiene el servidor | VPlan ya estaba en marcha por otro método | Es intencionado: el acceso directo solo detiene lo que arrancó él. Para pararlo usa `stop-vplan.ps1` |
 | La parada no detiene un proceso que no es VPlan | Es una protección deliberada | No uses `-Force` salvo que estés seguro de que puedes cerrar ese proceso |
-| `mysqldump: Access denied ... PROCESS privilege` | `taskflow_app` no tiene privilegios globales | Usa `backup-db.ps1` o añade `--no-tablespaces` |
+| `mysqldump: Access denied ... PROCESS privilege` | `vplan_app` no tiene privilegios globales | Usa `backup-db.ps1` o añade `--no-tablespaces` |
 | Flyway: `applied migration not resolved locally` | Se editó una migración ya aplicada | No edites `V1` ni `V2`; crea `V3__...` |
 | Flyway: `Schema-validation: missing table` | El dump no incluía `flyway_schema_history` | Restaura una copia completa |
 | `No se puede cargar el archivo ... porque la ejecución de scripts está deshabilitada` | Política de PowerShell | `Set-ExecutionPolicy -Scope Process Bypass` |
@@ -593,7 +593,7 @@ proyecto igualmente con estos equivalentes manuales:
 ```bash
 # Java 21+ y MySQL 8.0+ instalados con el gestor de paquetes del sistema
 export JAVA_HOME="/ruta/al/jdk"
-export TASKFLOW_DB_PASSWORD="la_contrasena_de_taskflow_app"
+export VPLAN_DB_PASSWORD="la_contrasena_de_vplan_app"
 chmod +x mvnw
 
 ./mvnw test
@@ -603,17 +603,17 @@ chmod +x mvnw
 Copia de seguridad manual:
 
 ```bash
-mysqldump --host=127.0.0.1 --port=3306 --user=taskflow_app \
+mysqldump --host=127.0.0.1 --port=3306 --user=vplan_app \
   --single-transaction --no-tablespaces --skip-add-locks --skip-triggers \
   --set-gtid-purged=OFF --default-character-set=utf8mb4 \
-  --result-file="backups/taskflow.sql" taskflow
+  --result-file="backups/vplan.sql" vplan
 ```
 
 Restauración (con la aplicación parada):
 
 ```bash
-mysql --host=127.0.0.1 --port=3306 --user=taskflow_app \
-  --default-character-set=utf8mb4 taskflow < backups/taskflow.sql
+mysql --host=127.0.0.1 --port=3306 --user=vplan_app \
+  --default-character-set=utf8mb4 vplan < backups/vplan.sql
 ```
 
 La contraseña se pide de forma interactiva o se define en el entorno. `my.cnf`

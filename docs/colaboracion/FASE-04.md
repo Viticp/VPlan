@@ -62,7 +62,7 @@ SchemaSingleUserTest          2 tests   0 fallos
 TareaControllerTest          15 tests   0 fallos
 TareaRepositoryTest           5 tests   0 fallos
 TareaServiceTest             10 tests   0 fallos
-TaskFlowApplicationTests      1 test    0 fallos
+VPlanApplicationTests      1 test    0 fallos
 --------------------------------------------------
 Tests run: 34, Failures: 0, Errors: 0, Skipped: 0 — BUILD SUCCESS
 ```
@@ -73,8 +73,8 @@ transaccionales y se revierten.
 
 ## 5. Verificación de la API contra MySQL real
 
-Aplicación arrancada con `spring-boot:run` contra `taskflow` (MySQL 8.0.45).
-`Current version of schema taskflow: 2`, `Started TaskFlowApplication in 2.244
+Aplicación arrancada con `spring-boot:run` contra `vplan` (MySQL 8.0.45).
+`Current version of schema vplan: 2`, `Started VPlanApplication in 2.244
 seconds`, 0 errores en el log.
 
 | # | Petición | Código real | Cuerpo real (resumido) |

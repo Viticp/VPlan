@@ -110,7 +110,7 @@ de la barra superior y `color-scheme`, para que los controles nativos del navega
 - **Primera visita:** se usa `prefers-color-scheme`. Si el sistema cambia mientras
   no hay preferencia guardada, la página lo sigue en vivo.
 - **Preferencia guardada:** la última elección se guarda en `localStorage` con la
-  clave `taskflow-tema` y gana al sistema en las siguientes visitas.
+  clave `vplan-tema` y gana al sistema en las siguientes visitas.
 - **Sin destello:** un script inline en el `<head>` aplica `data-theme="oscuro"`
   antes del primer pintado.
 - **Sincronización:** el evento `storage` mantiene varias pestañas con el mismo

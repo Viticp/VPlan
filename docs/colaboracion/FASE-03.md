@@ -15,15 +15,15 @@ Flyway y exponga `GET /api/health` con una comprobación real de la base de dato
 
 Código:
 
-- `src/main/java/com/taskflow/TaskFlowApplication.java`
-- `src/main/java/com/taskflow/config/SecurityConfig.java`
-- `src/main/java/com/taskflow/common/HealthController.java`
-- `src/main/java/com/taskflow/common/HealthResponse.java`
+- `src/main/java/com/vplan/VPlanApplication.java`
+- `src/main/java/com/vplan/config/SecurityConfig.java`
+- `src/main/java/com/vplan/common/HealthController.java`
+- `src/main/java/com/vplan/common/HealthResponse.java`
 
 Tests:
 
-- `src/test/java/com/taskflow/TaskFlowApplicationTests.java`
-- `src/test/java/com/taskflow/HealthControllerTest.java`
+- `src/test/java/com/vplan/VPlanApplicationTests.java`
+- `src/test/java/com/vplan/HealthControllerTest.java`
 
 Entorno y documentación:
 
@@ -39,9 +39,9 @@ Entorno y documentación:
 | Comprobación | Comando / método | Resultado |
 |---|---|---|
 | Java y Maven | `.\mvnw.cmd -v` | ✅ Maven 3.9.16 / Temurin 25.0.2 |
-| Contraseña disponible | comprobación booleana de `TASKFLOW_DB_PASSWORD` | ✅ Definida (valor nunca impreso) |
+| Contraseña disponible | comprobación booleana de `VPLAN_DB_PASSWORD` | ✅ Definida (valor nunca impreso) |
 | Arranque contra MySQL | `.\mvnw.cmd spring-boot:run` | ✅ Tomcat en 8080 en 2,018 s |
-| Conexión MySQL | log de Hikari + consulta JDBC directa | ✅ MySQL 8.0.45, base `taskflow` |
+| Conexión MySQL | log de Hikari + consulta JDBC directa | ✅ MySQL 8.0.45, base `vplan` |
 | Migración Flyway | log de Flyway + `flyway_schema_history` | ✅ `V1` aplicada, `success=true` |
 | Tablas creadas | consulta directa | ✅ `usuarios`, `tareas`, `flyway_schema_history` |
 | Endpoint de salud | `GET http://localhost:8080/api/health` | ✅ HTTP 200, `database=UP` |
@@ -52,18 +52,18 @@ Entorno y documentación:
 ### Evidencia de Flyway (log real)
 
 ```text
-Database: jdbc:mysql://localhost:3306/taskflow?... (MySQL 8.0)
-Schema history table `taskflow`.`flyway_schema_history` does not exist yet
-Creating Schema History table `taskflow`.`flyway_schema_history` ...
-Migrating schema `taskflow` to version "1 - init"
-Successfully applied 1 migration to schema `taskflow`, now at version v1
+Database: jdbc:mysql://localhost:3306/vplan?... (MySQL 8.0)
+Schema history table `vplan`.`flyway_schema_history` does not exist yet
+Creating Schema History table `vplan`.`flyway_schema_history` ...
+Migrating schema `vplan` to version "1 - init"
+Successfully applied 1 migration to schema `vplan`, now at version v1
 ```
 
 ### Evidencia de la consulta directa a MySQL
 
 ```text
 MYSQL_VERSION=8.0.45
-CATALOG=taskflow
+CATALOG=vplan
 TABLE=flyway_schema_history
 TABLE=tareas
 TABLE=usuarios
@@ -80,7 +80,7 @@ Content-Type: application/json
 ```json
 {
   "status": "UP",
-  "application": "taskflow",
+  "application": "vplan",
   "database": "UP",
   "timestamp": "2026-11-17T08:57:47.837051400Z"
 }
@@ -97,7 +97,7 @@ La aplicación se detuvo después de la comprobación y el puerto 8080 quedó li
 4. **CSRF activado** desde el principio; se completará en la Fase 4.
 5. **Sin usuario por defecto de Spring**: se excluye
    `UserDetailsServiceAutoConfiguration` para no generar ni registrar contraseñas.
-6. **Fail-fast explícito** si falta `TASKFLOW_DB_PASSWORD`, para evitar el
+6. **Fail-fast explícito** si falta `VPLAN_DB_PASSWORD`, para evitar el
    confuso `Access denied ... (using password: YES)` que produce enviar el
    placeholder literal.
 7. **Timeout de 3 s en Hikari** para que `/api/health` no se quede colgado 30 s
@@ -122,9 +122,9 @@ documentadas o mejoras para producción/Fase 4.
 ## Hallazgo de seguridad detectado al cerrar la fase
 
 Durante la verificación final, un escaneo del árbol del proyecto (comparando el
-contenido de cada archivo con el valor de `TASKFLOW_DB_PASSWORD`, sin imprimirlo)
+contenido de cada archivo con el valor de `VPLAN_DB_PASSWORD`, sin imprimirlo)
 reveló que `database/00_create_database_and_user.sql` contenía la contraseña real
-de `taskflow_app` en las líneas `IDENTIFIED BY`. La persona la había sustituido
+de `vplan_app` en las líneas `IDENTIFIED BY`. La persona la había sustituido
 por el marcador al ejecutar el script y el archivo se quedó así.
 
 - **Riesgo:** el script está versionado; en el primer `git add` la contraseña

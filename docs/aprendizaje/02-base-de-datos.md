@@ -89,7 +89,7 @@ El charset y la collation se definen una sola vez al crear la base de datos
 En MySQL Workbench, tras ejecutar los scripts:
 
 ```sql
-USE taskflow;
+USE vplan;
 SHOW TABLES;
 DESCRIBE tareas;
 
@@ -102,9 +102,9 @@ La tabla `flyway_schema_history` es el registro de migraciones aplicadas.
 
 ## 5. Credenciales
 
-La aplicación se conecta como `taskflow_app`, un usuario **sin privilegios
-globales**, solo sobre el esquema `taskflow`. La contraseña se pasa por la variable
-de entorno `TASKFLOW_DB_PASSWORD`; no se escribe en `application.yml` ni se sube
+La aplicación se conecta como `vplan_app`, un usuario **sin privilegios
+globales**, solo sobre el esquema `vplan`. La contraseña se pasa por la variable
+de entorno `VPLAN_DB_PASSWORD`; no se escribe en `application.yml` ni se sube
 a Git.
 
 > **Cuidado con el script SQL.** `database/00_create_database_and_user.sql` debe
@@ -115,7 +115,7 @@ a Git.
 
 ## 6. Copias de seguridad y restauración
 
-Una copia válida incluye **toda** la base `taskflow`:
+Una copia válida incluye **toda** la base `vplan`:
 
 - `tareas`, con los datos.
 - `flyway_schema_history`, para que Flyway sepa qué migraciones ya están
@@ -132,7 +132,7 @@ esquema que ya existe.
 `backup-db.ps1` usa `mysqldump` con:
 
 - `--single-transaction`: copia consistente sin bloquear la aplicación.
-- `--no-tablespaces`: obligatorio porque `taskflow_app` no tiene el privilegio
+- `--no-tablespaces`: obligatorio porque `vplan_app` no tiene el privilegio
   global `PROCESS`.
 - `--skip-add-locks` y `--skip-triggers`: la restauración no necesita privilegios
   extra.
@@ -143,7 +143,7 @@ El archivo se guarda en `backups/`, ignorado por Git porque contiene datos
 personales. Para restaurar, con la aplicación parada:
 
 ```powershell
-.\scripts\restore-db.ps1 -BackupFile ".\backups\taskflow-2026-11-17_120000.sql"
+.\scripts\restore-db.ps1 -BackupFile ".\backups\vplan-2026-11-17_120000.sql"
 ```
 
 El script valida el archivo, comprueba que el puerto 8080 está libre y pide

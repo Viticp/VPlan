@@ -1,7 +1,7 @@
-package com.taskflow.task.dto;
+package com.vplan.task.dto;
 
-import com.taskflow.task.Estado;
-import com.taskflow.task.Prioridad;
+import com.vplan.task.Estado;
+import com.vplan.task.Prioridad;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -12,7 +12,7 @@ import java.time.LocalDate;
  * Datos que el cliente envia para crear o actualizar una tarea.
  *
  * <p>No incluye {@code id}, {@code creadoEn} ni {@code actualizadoEn}: esos los
- * decide el servidor. Tampoco incluye un dueño, porque TaskFlow es de un solo
+ * decide el servidor. Tampoco incluye un dueño, porque VPlan es de un solo
  * usuario.</p>
  *
  * <p>{@code estado} es opcional: al crear, si no se indica, la tarea empieza en

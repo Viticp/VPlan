@@ -38,7 +38,7 @@ if (-not (Test-Path -LiteralPath $appScript)) {
     throw "No se encuentra scripts\start-vplan-app.ps1."
 }
 
-function New-TaskFlowShortcut {
+function New-VPlanShortcut {
     param(
         [string]$Name,
         [string]$ScriptPath,
@@ -70,7 +70,7 @@ Write-Host "VPlan - acceso directo" -ForegroundColor Cyan
 Write-Host "  Escritorio: $desktop"
 Write-Host ""
 
-New-TaskFlowShortcut -Name "VPlan" -ScriptPath $appScript `
+New-VPlanShortcut -Name "VPlan" -ScriptPath $appScript `
     -Description "Abre VPlan en una ventana de Chrome y detiene el servidor al cerrarla" | Out-Null
 
 $stopShortcut = Join-Path $desktop "Detener VPlan.lnk"

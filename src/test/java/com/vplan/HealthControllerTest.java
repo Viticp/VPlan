@@ -1,4 +1,4 @@
-package com.taskflow;
+package com.vplan;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ class HealthControllerTest {
         mockMvc.perform(get("/api/health"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("UP"))
-                .andExpect(jsonPath("$.application").value("taskflow"))
+                .andExpect(jsonPath("$.application").value("vplan"))
                 .andExpect(jsonPath("$.database").value("UP"));
     }
 }

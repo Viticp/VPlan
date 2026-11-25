@@ -7,7 +7,7 @@ sin miedo.
 ## 1. Estructura
 
 ```text
-com.taskflow
+com.vplan
 ├─ task/
 │  ├─ Tarea.java                    Entidad JPA (tabla tareas)
 │  ├─ Prioridad.java                Enum BAJA, MEDIA, ALTA

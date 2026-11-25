@@ -1,4 +1,4 @@
-# Guarda la contrasena de taskflow_app en .env.local (ignorado por Git).
+# Guarda la contrasena de vplan_app en .env.local (ignorado por Git).
 #
 # Uso:
 #     .\scripts\set-db-password.ps1
@@ -11,7 +11,7 @@ $ErrorActionPreference = "Stop"
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $envFile = Join-Path $projectRoot ".env.local"
 
-Write-Host "Introduce la contrasena de taskflow_app (no se mostrara)."
+Write-Host "Introduce la contrasena de vplan_app (no se mostrara)."
 $secure = Read-Host "Contrasena" -AsSecureString
 
 $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
@@ -25,7 +25,7 @@ if (-not $plain) {
     throw "La contrasena no puede estar vacia."
 }
 
-$content = "# Archivo local, ignorado por Git. No compartir.`r`nTASKFLOW_DB_PASSWORD=$plain`r`n"
+$content = "# Archivo local, ignorado por Git. No compartir.`r`nVPLAN_DB_PASSWORD=$plain`r`n"
 [System.IO.File]::WriteAllText($envFile, $content, (New-Object System.Text.UTF8Encoding($false)))
 $plain = $null
 

@@ -12,8 +12,8 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.taskflow</groupId>
-    <artifactId>taskflow</artifactId>
+    <groupId>com.vplan</groupId>
+    <artifactId>vplan</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <name>VPlan</name>
     <description>Gestor de tareas personales</description>

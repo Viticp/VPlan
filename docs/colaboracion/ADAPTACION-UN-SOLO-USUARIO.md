@@ -29,8 +29,8 @@ la bloqueaba a la espera de una fase futura:
 |---|---|
 | Dependencia de seguridad | `pom.xml` (`spring-boot-starter-security`) |
 | Dependencia de test | `pom.xml` (`spring-security-test`) |
-| Exclusión de autoconfiguración | `TaskFlowApplication.java` |
-| Reglas de autorización | `src/main/java/com/taskflow/config/SecurityConfig.java` |
+| Exclusión de autoconfiguración | `VPlanApplication.java` |
+| Reglas de autorización | `src/main/java/com/vplan/config/SecurityConfig.java` |
 | Tabla `usuarios` | `V1__init.sql` |
 | Relación `tareas.usuario_id` | `V1__init.sql` (FK + 3 índices) |
 
@@ -40,9 +40,9 @@ la bloqueaba a la espera de una fase futura:
 |---|---|
 | `pom.xml` | Eliminadas `spring-boot-starter-security` y `spring-security-test` |
 | `config/SecurityConfig.java` | Eliminado (solo contenía reglas de autorización) |
-| `TaskFlowApplication.java` | Eliminada la exclusión de `UserDetailsServiceAutoConfiguration` |
+| `VPlanApplication.java` | Eliminada la exclusión de `UserDetailsServiceAutoConfiguration` |
 | `db/migration/V2__single_user.sql` | **Nuevo**: elimina FK, índices y columna `usuario_id`, y la tabla `usuarios` |
-| `src/test/java/com/taskflow/SchemaSingleUserTest.java` | **Nuevo**: comprueba el esquema resultante |
+| `src/test/java/com/vplan/SchemaSingleUserTest.java` | **Nuevo**: comprueba el esquema resultante |
 | Documentación | `README.md`, `01-arquitectura.md`, `02-base-de-datos.md`, `04-arranque-y-health.md`, `FASE-03.md` |
 
 `V1__init.sql` **no se modificó**. La base de datos no se borró ni se recreó.
@@ -83,7 +83,7 @@ cambio no destructivo (conservar la columna hasta migrar los datos).
 ```text
 HealthControllerTest        Tests run: 1, Failures: 0, Errors: 0
 SchemaSingleUserTest        Tests run: 2, Failures: 0, Errors: 0
-TaskFlowApplicationTests    Tests run: 1, Failures: 0, Errors: 0
+VPlanApplicationTests    Tests run: 1, Failures: 0, Errors: 0
 Tests run: 4, Failures: 0, Errors: 0, Skipped: 0 — BUILD SUCCESS
 ```
 
@@ -93,12 +93,12 @@ Flyway aplicó `V1` y `V2` sobre H2 en memoria, y los tests confirman que
 ### 4.2 MySQL real (después)
 
 ```text
-Database: jdbc:mysql://localhost:3306/taskflow?... (MySQL 8.0)
-Current version of schema `taskflow`: 1
-Migrating schema `taskflow` to version "2 - single user"
-Successfully applied 1 migration to schema `taskflow`, now at version v2 (78 ms)
+Database: jdbc:mysql://localhost:3306/vplan?... (MySQL 8.0)
+Current version of schema `vplan`: 1
+Migrating schema `vplan` to version "2 - single user"
+Successfully applied 1 migration to schema `vplan`, now at version v2 (78 ms)
 Tomcat started on port 8080
-Started TaskFlowApplication in 1.919 seconds
+Started VPlanApplication in 1.919 seconds
 ```
 
 Consultas directas a la base de datos:
@@ -130,7 +130,7 @@ No aparece la tabla `usuarios` ni la columna `usuario_id`.
 
 ```http
 GET http://localhost:8080/api/health  → 200
-{"status":"UP","application":"taskflow","database":"UP","timestamp":"2026-11-17T09:19:37.446408200Z"}
+{"status":"UP","application":"vplan","database":"UP","timestamp":"2026-11-17T09:19:37.446408200Z"}
 
 HEAD http://localhost:8080/api/health → 200
 ```
@@ -163,7 +163,7 @@ Este aviso está también en el `README.md` y en
 - `application.yml` (datasource, Hikari, Flyway, `ddl-auto: validate`, puerto).
 - `HealthController` y `HealthResponse`.
 - Maven Wrapper, scripts de entorno y `.env.local`.
-- La base de datos `taskflow` (misma base, mismos datos: 0 tareas).
+- La base de datos `vplan` (misma base, mismos datos: 0 tareas).
 - El servicio MySQL y la configuración del sistema.
 
 ## 7. Estado

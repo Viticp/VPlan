@@ -6,7 +6,7 @@
 .\mvnw.cmd spring-boot:run
         │
         ▼
-TaskFlowApplication.main()
+VPlanApplication.main()
         │
         ├─ 1. Spring lee application.yml y las variables de entorno
         ├─ 2. HikariCP abre el pool de conexiones a MySQL
@@ -23,20 +23,20 @@ El orden importa: **Flyway va antes que JPA**. Si Hibernate arrancara primero co
 En `application.yml`:
 
 ```yaml
-password: "${TASKFLOW_DB_PASSWORD}"
+password: "${VPLAN_DB_PASSWORD}"
 ```
 
 No hay valor por defecto a propósito. Si la variable no existe, el arranque falla
 con un error claro en lugar de intentar conectarse con una contraseña vacía.
 
-La comprobación está en `TaskFlowApplication.main()`: se ejecuta antes de crear
+La comprobación está en `VPlanApplication.main()`: se ejecuta antes de crear
 el contexto de Spring. Los tests no pasan por `main()` (usan H2), así que no
 necesitan la variable.
 
 Para no repetirla en cada sesión, se guarda en `.env.local`:
 
 ```text
-TASKFLOW_DB_PASSWORD=...
+VPLAN_DB_PASSWORD=...
 ```
 
 - `.env.local` está en `.gitignore`: **nunca** se sube al repositorio.
@@ -53,7 +53,7 @@ GET /api/health
 ```json
 {
   "status": "UP",
-  "application": "taskflow",
+  "application": "vplan",
   "database": "UP",
   "timestamp": "2026-11-17T09:50:00Z"
 }
@@ -117,18 +117,18 @@ Para parar: `Ctrl + C`.
 Señales de que todo ha ido bien:
 
 ```text
-Flyway ... Successfully applied 1 migration to schema `taskflow`
+Flyway ... Successfully applied 1 migration to schema `vplan`
 HikariPool ... Start completed
 Tomcat started on port 8080
-Started TaskFlowApplication in X seconds
+Started VPlanApplication in X seconds
 ```
 
 ## 7. Errores habituales
 
 | Error | Causa | Solución |
 |---|---|---|
-| `Could not resolve placeholder 'TASKFLOW_DB_PASSWORD'` | Falta la variable | Ejecutar el script de entorno y `.env.local` |
-| `Access denied for user 'taskflow_app'` | Contraseña incorrecta o usuario no creado | Revisar el script SQL y `.env.local` |
+| `Could not resolve placeholder 'VPLAN_DB_PASSWORD'` | Falta la variable | Ejecutar el script de entorno y `.env.local` |
+| `Access denied for user 'vplan_app'` | Contraseña incorrecta o usuario no creado | Revisar el script SQL y `.env.local` |
 | `Communications link failure` | MySQL parado | Iniciar el servicio `MySQL80` |
 | `Flyway detected applied migration not resolved locally` | Se editó una migración ya aplicada | No editar migraciones aplicadas; crear `V2__...` |
 | `Schema-validation: missing table` | Flyway no se ejecutó | Revisar logs de Flyway y permisos del usuario |

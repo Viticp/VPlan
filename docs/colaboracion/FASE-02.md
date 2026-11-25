@@ -23,7 +23,7 @@ esquema de base de datos versionado, entorno de desarrollo por sesión y documen
 | JDK de ejecución | Temurin 25 (detectado automáticamente) |
 | Spring Boot | 3.5.16 |
 | Build | Maven Wrapper 3.3.4 + Maven 3.9.16 |
-| Base de datos | MySQL 8 (`taskflow`, usuario `taskflow_app`) |
+| Base de datos | MySQL 8 (`vplan`, usuario `vplan_app`) |
 | Tests | H2 2.3.232 en modo MySQL |
 | Migraciones | Flyway 11.7.2 |
 | Git | Solo repositorio local; sin identidad configurada |
@@ -92,9 +92,9 @@ inofensivo y no afecta al build.
 
 | Punto | Decisión | Motivo |
 |---|---|---|
-| 1 | **Aceptado y corregido** | El script acepta `-JavaHome` o `TASKFLOW_JAVA_HOME`, valida que el JDK sea ≥ 21 y mantiene la ruta del equipo como valor por defecto |
+| 1 | **Aceptado y corregido** | El script acepta `-JavaHome` o `VPLAN_JAVA_HOME`, valida que el JDK sea ≥ 21 y mantiene la ruta del equipo como valor por defecto |
 | 2 | **Rechazado con evidencia** | `flyway-core-11.7.2.jar` contiene **0** clases de MySQL; `flyway-mysql-11.7.2.jar` contiene las 11 clases del driver (verificado con `jar tf`). Sin esa dependencia Flyway no reconoce MySQL |
-| 3 | **Aceptado como documentación** | Es una URL de desarrollo local; ya es sustituible con `TASKFLOW_DB_URL` y se añadió un comentario que exige `sslMode=VERIFY_IDENTITY` en producción |
+| 3 | **Aceptado como documentación** | Es una URL de desarrollo local; ya es sustituible con `VPLAN_DB_URL` y se añadió un comentario que exige `sslMode=VERIFY_IDENTITY` en producción |
 | 4 | **Rechazado** | Los `CHECK` son una garantía de integridad deliberada. Cambiar valores se hace con una migración nueva, que es el procedimiento correcto; una tabla de referencia sería complejidad innecesaria para este alcance |
 | 5 | **Rechazado para desarrollo** | 5 conexiones sobran para un uso personal y evitan consumir conexiones del MySQL local; se puede subir por variable si hiciera falta |
 | 6 | **Rechazado** | `CAMBIA_ESTA_CONTRASENA` es un marcador, no un secreto. El script debe ser ejecutable por la persona; la contraseña real nunca se guarda en el repositorio |
@@ -102,7 +102,7 @@ inofensivo y no afecta al build.
 ## Bloqueadores / pendientes
 
 - Ejecutar `database/00_create_database_and_user.sql` como root (lo hace la persona).
-- Definir `TASKFLOW_DB_PASSWORD` en la sesión.
+- Definir `VPLAN_DB_PASSWORD` en la sesión.
 - Identidad de Git (nombre y email) para poder hacer el primer commit.
 - Verificar el script SQL contra MySQL real al inicio de la Fase 3.
 

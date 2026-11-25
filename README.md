@@ -23,7 +23,7 @@ Tecnologías
 Backend: Java 21, Spring Boot 3, Spring MVC, Spring Data JPA, API REST
 Base de datos: MySQL 8, Flyway (migraciones)
 Frontend: HTML5, CSS3, JavaScript
-Testing: JUnit 5, MockMvc, H2 (34 tests automatizados)
+Testing: JUnit 5, MockMvc, H2 (42 tests automatizados)
 Herramientas: Maven, Git, GitHub
 Cómo ejecutarlo
 
@@ -31,7 +31,7 @@ Necesitas JDK 21 y MySQL 8 en localhost:3306.
 
 Crea la base de datos y el usuario con database/00_create_database_and_user.sql (cambia antes la contraseña del script).
 Guarda la contraseña de la app: .\scripts\set-db-password.ps1
-Arranca: .\scripts\start-taskflow.ps1 y se abre http://localhost:8080.
+Arranca: .\scripts\start-vplan.ps1 y se abre http://localhost:8080.
 
 Los scripts son de PowerShell (Windows). En Linux/macOS: ./mvnw spring-boot:run con las variables de conexión definidas (mira application.yml).
 

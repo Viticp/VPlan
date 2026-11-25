@@ -1,4 +1,4 @@
-package com.taskflow.task;
+package com.vplan.task;
 
 /**
  * Prioridad de una tarea.

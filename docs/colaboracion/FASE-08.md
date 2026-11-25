@@ -258,7 +258,7 @@ Durante la verificación:
 
 | Puerto | Dirección | Proceso |
 |---:|---|---|
-| 8080 | `127.0.0.1` | `com.taskflow.TaskFlowApplication` |
+| 8080 | `127.0.0.1` | `com.vplan.VPlanApplication` |
 | 9222 | `127.0.0.1` | Chrome headless de pruebas |
 
 Al terminar se detuvieron la aplicación, el wrapper de Maven y Chrome. Los puertos

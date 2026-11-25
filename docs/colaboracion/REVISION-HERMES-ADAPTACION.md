@@ -17,14 +17,14 @@
 |---|------|--------|-----------|
 | 1 | `pom.xml` sin `spring-boot-starter-security` ni `spring-security-test` | ✅ | Leído: solo `spring-boot-starter-web`, `data-jpa`, `validation`, `flyway-core`, `flyway-mysql`, `mysql-connector-j` (runtime), `h2` (test), `spring-boot-starter-test` |
 | 2 | `SecurityConfig.java` eliminado y sin referencias a `springframework.security` en `src/` | ✅ | `search_files` devuelve 0 coincidencias; archivo no existe |
-| 3 | `TaskFlowApplication.java`: exclusión de `UserDetailsServiceAutoConfiguration` eliminada; fail-fast de `TASKFLOW_DB_PASSWORD` mantenido | ✅ | Leído líneas 1-46: no hay `@EnableAutoConfiguration(exclude=...)`; método `requireDatabasePassword()` presente |
+| 3 | `VPlanApplication.java`: exclusión de `UserDetailsServiceAutoConfiguration` eliminada; fail-fast de `VPLAN_DB_PASSWORD` mantenido | ✅ | Leído líneas 1-46: no hay `@EnableAutoConfiguration(exclude=...)`; método `requireDatabasePassword()` presente |
 | 4 | `V2__single_user.sql`: contenido, orden y compatibilidad MySQL/H2 | ✅ | Leído: FK → índices → columna (separada) → tabla; índices nuevos; comentarios explican orden H2/MySQL |
 | 5 | `V1__init.sql` no modificado (histórico) | ✅ | Leído: crea `usuarios` y `tareas` con `usuario_id`, FK e índices compuestos; checksum Flyway intacto |
-| 6 | `SchemaSingleUserTest.java` existe y resto de tests intactos | ✅ | Leídos: `SchemaSingleUserTest` (2 tests), `TaskFlowApplicationTests` (contextLoads), `HealthControllerTest` (health OK) |
+| 6 | `SchemaSingleUserTest.java` existe y resto de tests intactos | ✅ | Leídos: `SchemaSingleUserTest` (2 tests), `VPlanApplicationTests` (contextLoads), `HealthControllerTest` (health OK) |
 | 7 | `/api/health` sin modificar (`HealthController`, `HealthResponse`) | ✅ | Leídos: `GET /api/health` ejecuta `SELECT 1`, devuelve 200/503, sin cambios |
 | 8 | Documentación clara: app local, no exponer sin protección | ✅ | `README.md` (líneas 15-17, 186-199), `01-arquitectura.md` (48-65), `02-base-de-datos.md` (5-6), `04-arranque-y-health.md` (76-91), `ADAPTACION-UN-SOLO-USUARIO.md` (146-158) |
 | 9 | Sin incoherencias: referencias a login, BCrypt, CSRF, `usuarios`, `usuario_id` solo donde tienen sentido (V1 histórico, comentarios, tests) | ✅ | `search_files` para BCrypt/CSRF: 0; `usuario_id`/`usuarios` solo en V1, V2, test y docs |
-| 10 | Sin secretos en archivos versionados | ✅ | `check-no-secrets.ps1` reportado OK (0 coincidencias); `.env.local` en `.gitignore`; `application.yml` usa `${TASKFLOW_DB_PASSWORD}` |
+| 10 | Sin secretos en archivos versionados | ✅ | `check-no-secrets.ps1` reportado OK (0 coincidencias); `.env.local` en `.gitignore`; `application.yml` usa `${VPLAN_DB_PASSWORD}` |
 
 ---
 
@@ -42,7 +42,7 @@ Ninguno.
   - **Impacto:** Bajo; la documentación verificada sí incluye los 4 archivos solicitados y el README. Si `FASE-03.md` existe, debería revisarse aparte.
 
 ### Informativos (3)
-1. **Archivo:** `TaskFlowApplication.java`, línea 10-11
+1. **Archivo:** `VPlanApplication.java`, línea 10-11
    - El javadoc menciona "Spring Security no forma parte de las dependencias" — correcto y útil.
 2. **Archivo:** `V2__single_user.sql`, líneas 9-13
    - Comentarios explican explícitamente el orden para compatibilidad H2/MySQL — buena práctica.
@@ -58,7 +58,7 @@ Ninguno.
 | Autenticación | ✅ Eliminada | No hay `SecurityConfig`, `UserDetailsService`, login, sesiones ni cookies. |
 | CSRF | ✅ No aplica | Sin cookies de sesión, no hay vector CSRF. Documentado en `01-arquitectura.md:55-56` y `04-arranque-y-health.md:86-88`. |
 | Exposición pública | ✅ Advertida | `README.md:15-17`, `01-arquitectura.md:58-60`, `04-arranque-y-health.md:89-91`, `ADAPTACION-UN-SOLO-USUARIO.md:149-151`: aviso explícito de no exponer en internet sin autenticación + HTTPS. |
-| Credenciales BD | ✅ Fuera de repo | Variable `TASKFLOW_DB_PASSWORD` obligatoria; `.env.local` ignorado; `application.yml` usa placeholder. Fail-fast en `TaskFlowApplication.java:29-44`. |
+| Credenciales BD | ✅ Fuera de repo | Variable `VPLAN_DB_PASSWORD` obligatoria; `.env.local` ignorado; `application.yml` usa placeholder. Fail-fast en `VPlanApplication.java:29-44`. |
 | Detalles de error | ✅ Ocultos | `server.error.include-message/stacktrace` desactivados (no verificado en `application.yml` por no estar en el mandato, pero `HealthController` no loggea mensaje de excepción). |
 | Comprobación secretos | ✅ Automatizada | `scripts/check-no-secrets.ps1` reportado OK (0 coincidencias). |
 

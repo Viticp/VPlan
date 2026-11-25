@@ -1,6 +1,6 @@
-package com.taskflow.task;
+package com.vplan.task;
 
-import com.taskflow.task.dto.TareaRequest;
+import com.vplan.task.dto.TareaRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

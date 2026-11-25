@@ -1,4 +1,4 @@
-package com.taskflow.common;
+package com.vplan.common;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +37,7 @@ public class HealthController {
 
         HealthResponse body = new HealthResponse(
                 databaseUp ? "UP" : "DOWN",
-                "taskflow",
+                "vplan",
                 databaseUp ? "UP" : "DOWN",
                 Instant.now());
 

@@ -9,24 +9,24 @@
 -- Este script NO se ejecuta desde la aplicacion ni desde los tests.
 -- Se ejecuta manualmente desde MySQL Workbench o desde la consola mysql.
 
-CREATE DATABASE IF NOT EXISTS taskflow
+CREATE DATABASE IF NOT EXISTS vplan
     CHARACTER SET utf8mb4
     COLLATE utf8mb4_0900_ai_ci;
 
-CREATE USER IF NOT EXISTS 'taskflow_app'@'localhost'
+CREATE USER IF NOT EXISTS 'vplan_app'@'localhost'
     IDENTIFIED BY 'CAMBIA_ESTA_CONTRASENA';
 
 -- Si el usuario ya existia, actualiza la contrasena.
-ALTER USER 'taskflow_app'@'localhost'
+ALTER USER 'vplan_app'@'localhost'
     IDENTIFIED BY 'CAMBIA_ESTA_CONTRASENA';
 
--- Privilegios minimos: solo sobre el esquema taskflow.
+-- Privilegios minimos: solo sobre el esquema vplan.
 -- CREATE/ALTER/DROP/INDEX/REFERENCES son necesarios para que Flyway cree y
 -- evolucione las tablas. No se concede ningun privilegio global.
 GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX, REFERENCES
-    ON taskflow.* TO 'taskflow_app'@'localhost';
+    ON vplan.* TO 'vplan_app'@'localhost';
 
 FLUSH PRIVILEGES;
 
 -- Comprobacion rapida (opcional):
-SHOW GRANTS FOR 'taskflow_app'@'localhost';
+SHOW GRANTS FOR 'vplan_app'@'localhost';

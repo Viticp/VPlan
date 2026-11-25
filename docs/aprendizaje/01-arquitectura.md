@@ -80,8 +80,8 @@ histórico de Flyway.
 ## 5. Dónde vive cada cosa
 
 ```text
-com.taskflow
-├─ TaskFlowApplication   Punto de entrada (@SpringBootApplication)
+com.vplan
+├─ VPlanApplication   Punto de entrada (@SpringBootApplication)
 ├─ task/                 Entidad, repositorio, servicio y controlador de tareas
 └─ common/               Manejo global de errores y formato de error
 ```

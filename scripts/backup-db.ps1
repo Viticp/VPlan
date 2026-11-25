@@ -4,11 +4,11 @@
 #     .\scripts\backup-db.ps1
 #     .\scripts\backup-db.ps1 -OutputDirectory "D:\copias"
 #
-# Genera un archivo .sql con TODA la base taskflow: la tabla tareas y el
+# Genera un archivo .sql con TODA la base vplan: la tabla tareas y el
 # historial de Flyway. Restaurar solo tareas romperia Flyway, asi que el dump
 # siempre incluye flyway_schema_history.
 #
-# La contrasena se toma de TASKFLOW_DB_PASSWORD o de .env.local. Nunca se
+# La contrasena se toma de VPLAN_DB_PASSWORD o de .env.local. Nunca se
 # imprime ni se pasa por la linea de comandos.
 #
 # Requisito: la base de datos debe existir. La aplicacion puede estar en marcha
@@ -16,7 +16,7 @@
 
 [CmdletBinding()]
 param(
-    [string]$Database = "taskflow",
+    [string]$Database = "vplan",
     [string]$OutputDirectory = "",
     [string]$DbHost = "127.0.0.1",
     [int]$Port = 3306,
@@ -36,10 +36,10 @@ if (-not $OutputDirectory) {
 $envValues = Read-DotEnvFile -Path (Join-Path $projectRoot ".env.local")
 
 if (-not $User) {
-    $User = Resolve-TaskFlowSetting -Name "TASKFLOW_DB_USER" -EnvFileValues $envValues -Default "taskflow_app"
+    $User = Resolve-VPlanSetting -Name "VPLAN_DB_USER" -EnvFileValues $envValues -Default "vplan_app"
 }
 
-$password = Resolve-TaskFlowSetting -Name "TASKFLOW_DB_PASSWORD" -EnvFileValues $envValues
+$password = Resolve-VPlanSetting -Name "VPLAN_DB_PASSWORD" -EnvFileValues $envValues
 if (-not $password) {
     throw @"
 Falta la contrasena de la base de datos.
@@ -64,7 +64,7 @@ if (-not $MySqlDumpPath) {
 New-Item -ItemType Directory -Force -Path $OutputDirectory | Out-Null
 
 $stamp = Get-Date -Format "yyyy-MM-dd_HHmmss"
-$target = Join-Path $OutputDirectory "taskflow-$stamp.sql"
+$target = Join-Path $OutputDirectory "vplan-$stamp.sql"
 if (Test-Path -LiteralPath $target) {
     throw "Ya existe el archivo '$target'. Espera un segundo y vuelve a intentarlo."
 }

@@ -1,4 +1,4 @@
-package com.taskflow.task;
+package com.vplan.task;
 
 /**
  * Estado de una tarea.

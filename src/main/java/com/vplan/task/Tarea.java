@@ -1,4 +1,4 @@
-package com.taskflow.task;
+package com.vplan.task;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -17,7 +17,7 @@ diseño del frontend.
 | Spring Boot | Escucha solo en `127.0.0.1:8080` |
 | MySQL | Debe escuchar solo en localhost |
 | Contraseñas | Variables de entorno o `.env.local`; nunca en Git |
-| Copias de seguridad | Dump completo de `taskflow`, incluido Flyway |
+| Copias de seguridad | Dump completo de `vplan`, incluido Flyway |
 
 ---
 
@@ -37,7 +37,7 @@ diseño del frontend.
 | Archivo | Cambio |
 |---|---|
 | `src/main/resources/application.yml` | `server.address: 127.0.0.1`; URL JDBC por defecto a `127.0.0.1`; comentarios de alcance local |
-| `src/main/java/com/taskflow/TaskFlowApplication.java` | Mensaje de error genérico, sin rutas de Windows |
+| `src/main/java/com/vplan/VPlanApplication.java` | Mensaje de error genérico, sin rutas de Windows |
 | `pom.xml` | Comentario genérico sobre Java 21+ |
 | `.gitignore` | `backups/` y `*.dump` |
 
@@ -66,7 +66,7 @@ controladores, servicios, repositorios, tests, dependencias ni frontend.
 `set-dev-env.ps1` ya no usa una ruta fija. Prueba en orden:
 
 1. `-JavaHome`.
-2. `TASKFLOW_JAVA_HOME`.
+2. `VPLAN_JAVA_HOME`.
 3. `JAVA_HOME`.
 4. `javac.exe` del `PATH`.
 5. Rutas habituales de Windows (Adoptium, Java, Microsoft, Corretto, Zulu,
@@ -79,7 +79,7 @@ versiones rechazó y cómo indicar una ruta. No modifica variables del sistema.
 
 `backup-db.ps1`:
 
-- Genera `backups\taskflow-AAAA-MM-DD_HHmmss.sql`.
+- Genera `backups\vplan-AAAA-MM-DD_HHmmss.sql`.
 - Usa `--single-transaction --no-tablespaces --skip-add-locks --skip-triggers
   --set-gtid-purged=OFF --result-file`.
 - Comprueba que el archivo contiene `tareas` y `flyway_schema_history`.
@@ -100,7 +100,7 @@ versiones rechazó y cómo indicar una ruta. No modifica variables del sistema.
 ### 3.4 Privacidad local
 
 - Tomcat: `server.address: 127.0.0.1`.
-- URL JDBC por defecto: `jdbc:mysql://127.0.0.1:3306/taskflow...`.
+- URL JDBC por defecto: `jdbc:mysql://127.0.0.1:3306/vplan...`.
 - MySQL: `bind-address=127.0.0.1` documentado en `INSTALACION.md` y en la guía de
   base de datos. **No se cambió la configuración global del ordenador de clase**,
   según las condiciones de la tarea.
@@ -136,9 +136,9 @@ archivo UTF-8 sin BOM.
 
 | Comprobación | Resultado |
 |---|---|
-| Arranque | `Started TaskFlowApplication` |
-| Flyway | `Current version of schema taskflow: 2` |
-| URL JDBC usada | `jdbc:mysql://127.0.0.1:3306/taskflow...` |
+| Arranque | `Started VPlanApplication` |
+| Flyway | `Current version of schema vplan: 2` |
+| URL JDBC usada | `jdbc:mysql://127.0.0.1:3306/vplan...` |
 | `/api/health` | `200`, `status=UP`, `database=UP` |
 | `POST /api/tareas` | Creada la tarea temporal `Portabilidad E2E` (id 19) |
 | `GET /api/tareas` | 1 tarea |
@@ -164,11 +164,11 @@ archivo UTF-8 sin BOM.
 ### 4.6 Restauración en base independiente
 
 Se levantó una instancia MySQL 8.0.45 temporal, aislada, en `127.0.0.1:3317`,
-con un directorio de datos en `%TEMP%`. **No se tocó `taskflow`.**
+con un directorio de datos en `%TEMP%`. **No se tocó `vplan`.**
 
 | Comprobación | Resultado |
 |---|---|
-| Base de destino | `taskflow_restore_test` |
+| Base de destino | `vplan_restore_test` |
 | Restauración | Correcta |
 | Tareas restauradas | 1 (`Portabilidad E2E`) |
 | Migraciones | `v1 init success=1`, `v2 single user success=1` |
